@@ -1,0 +1,90 @@
+name: GitHub Classroom Workflow
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  publish:
+    name: Publish to Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Load buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build images
+        timeout-minutes: 10
+        run: |
+          echo ${{ secrets.BONUS_DATABASE_URL }} >> bonus_service/.env
+          echo ${{ secrets.FLIGHT_DATABASE_URL }} >> flight_service/.env
+          echo ${{ secrets.TICKET_DATABASE_URL }} >> ticket_service/.env
+          touch gateway_service/.env
+          docker compose -f docker-compose.prod.yml build gateway-service
+          docker compose -f docker-compose.prod.yml build bonus-service
+          docker compose -f docker-compose.prod.yml build flight-service
+          docker compose -f docker-compose.prod.yml build ticket-service
+
+      - name: Run containers
+        timeout-minutes: 5
+        run: |
+          docker compose -f docker-compose.prod.yml up -d
+      
+      - name: Run API Tests
+        uses: matt-ball/newman-action@master
+        with:
+          collection: v1/postman/collection.json
+          environment: v1/postman/environment.json
+          delayRequest: 100
+          reporters: '[ "cli" ]'
+
+      - name: Collect docker logs on failure
+        if: failure()
+        uses: jwalton/gh-docker-logs@v2
+        with:
+          dest: './logs'
+
+      - name: Tar logs
+        if: failure()
+        run: tar cvzf ./logs.tgz ./logs
+
+      - name: Upload logs to GitHub
+        if: failure()
+        uses: actions/upload-artifact@master
+        with:
+          name: logs.tgz
+          path: ./logs.tgz
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push images
+        run: docker compose -f docker-compose.prod.yml push
+
+        # https://cloud.yandex.ru/docs/managed-kubernetes/operations/connect/create-static-conf#create-conf-file
+        # Get endpoint: `yc managed-kubernetes cluster get --id <cluster_id>`
+      - name: Deploy
+        run: |
+          kubectl config set-cluster rsoi --server="${{ secrets.K8S_MASTER_ENDPOINT }}" --insecure-skip-tls-verify=true
+          kubectl config set-credentials admin --token="${{ secrets.K8S_SA_TOKEN }}"
+          kubectl config set-context default --cluster=rsoi --user=admin
+          kubectl config use-context default
+          cd k8s-helm
+          helm delete microservices --ignore-not-found
+          helm delete postgres --ignore-not-found
+          helm install -f postgres-chart/values.yaml postgres ./postgres-chart
+          helm install -f services-chart/values.yaml microservices ./services-chart
+
+      - name: Stop containers
+        if: always()
+        continue-on-error: true
+        run: docker compose -f docker-compose.prod.yml down -v
