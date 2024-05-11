@@ -1,0 +1,62 @@
+<div class="wrap-login">
+    <div class="container">
+        <form class="" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+            <mat-card class="login-box">
+
+                <mat-card-content>
+                    <mat-form-field appearance="outline">
+                        <mat-label>Email</mat-label>
+                        <input matInput type="email" placeholder="Enter your email" formControlName="email" required class="form-field">
+                        <mat-error *ngIf="registerForm.get('email')?.hasError('required')">Email is required</mat-error>
+                        <mat-error *ngIf="registerForm.get('email')?.hasError('email')">Invalid email format</mat-error>
+                    </mat-form-field>
+                
+                    <mat-form-field appearance="outline">
+                        <mat-label>Пароль</mat-label>
+                        <input matInput type="password" placeholder="Enter your password" formControlName="password" required class="form-field">
+                        <mat-error *ngIf="registerForm.get('password')?.hasError('required')">Password is required</mat-error>
+                        <mat-error *ngIf="registerForm.get('password')?.hasError('minlength')">Password should be at least 6 characters long</mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Имя</mat-label>
+                        <input matInput type="firstName" placeholder="Enter your password" formControlName="password" required class="form-field">
+                        <mat-error *ngIf="registerForm.get('firstName')?.hasError('required')">Password is required</mat-error>
+                        <mat-error *ngIf="registerForm.get('firstName')?.hasError('minlength')">Password should be at least 6 characters long</mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Фамилия</mat-label>
+                        <input matInput type="secondName" placeholder="Enter your password" formControlName="password" required class="form-field">
+                        <mat-error *ngIf="registerForm.get('secondName')?.hasError('required')">Password is required</mat-error>
+                        <mat-error *ngIf="registerForm.get('secondName')?.hasError('minlength')">Password should be at least 6 characters long</mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Отчество</mat-label>
+                        <input matInput type="lastName" placeholder="Enter your password" formControlName="password" required class="form-field">
+                        <mat-error *ngIf="registerForm.get('lastName')?.hasError('minlength')">Password should be at least 6 characters long</mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Логин</mat-label>
+                        <input matInput type="login" placeholder="Enter your password" formControlName="password" required class="form-field">
+                        <mat-error *ngIf="registerForm.get('login')?.hasError('required')">Password is required</mat-error>
+                        <mat-error *ngIf="registerForm.get('login')?.hasError('minlength')">Password should be at least 6 characters long</mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Мобильный телефон</mat-label>
+                        <input matInput type="mobilePhone" placeholder="Телефон" formControlName="password" required class="form-field">
+                        <mat-error *ngIf="registerForm.get('mobilePhone')?.hasError('required')">Mobile phone is required</mat-error>
+                        <mat-error *ngIf="registerForm.get('mobilePhone')?.hasError('pattern')">Номер телефона не соответствует шаблону</mat-error>
+                    </mat-form-field>
+                </mat-card-content>
+
+                <mat-card-actions>
+                    <button mat-raised-button color="primary">Login</button>
+                </mat-card-actions>
+            </mat-card>
+        </form>
+    </div>
+</div>
