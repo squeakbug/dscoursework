@@ -10,7 +10,7 @@ services:
       POSTGRES_DB: postgres
     volumes:
       - db-data:/var/lib/postgresql/data
-      - ./init_db/:/docker-entrypoint-initdb.d/
+      - ./init_db:/docker-entrypoint-initdb.d/
     ports:
       - "5432:5432"
     networks:
@@ -42,22 +42,8 @@ services:
     networks:
       - services-network
 
-  queue-service:
-    build: ./retryer_service_rabbit
-    image: squeakbug73/retryer-service:0.1
-    restart: unless-stopped
-    container_name: retryer-service
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - services-network
-
   rabbitmq:
-    build: ./rabbitmq
-    image: squeakbug73/rabbitmq-delayed-messages:0.1
-    hostname: rabbitmq
-    container_name: rabbitmq
+    image: rabbitmq:3.13.2-management
     restart: always
     ports:
       - 15672:15672
@@ -112,6 +98,82 @@ services:
       - "8050:8050"
     depends_on:
       postgres:
+        condition: service_healthy
+    networks:
+      - services-network
+
+  statistics-service:
+    build: statistics_service
+    image: squeakbug73/statistics-service:0.1
+    restart: unless-stopped
+    ports:
+      - "8030:8030"
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=stat
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - services-network
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    restart: "no"
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "kafka:9093"
+      JVM_OPTS: "-Xms32M -Xmx64M"
+    depends_on:
+      - kafka
+    networks:
+      - services-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    healthcheck:
+      test: "[[ $$(echo srvr | nc zookeeper 2181 || exit 1) ]]"
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+      - "2182:2182"
+    networks:
+      - services-network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    hostname: kafka
+    container_name: kafka
+    healthcheck:
+      test: nc -z localhost 9092 || exit -1
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "8091:8091"
+      - "9092:9092"
+    environment:
+      KAFKA_LISTENERS: INSIDE://:9093,OUTSIDE://:9092
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://:9093,OUTSIDE://:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ZOOKEEPER_SESSION_TIMEOUT: "6000"
+      KAFKA_RESTART_ATTEMPTS: "10"
+      KAFKA_RESTART_DELAY: "5"
+    depends_on: 
+      zookeeper:
         condition: service_healthy
     networks:
       - services-network
