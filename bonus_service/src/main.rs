@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use actix::sync::SyncArbiter;
 use actix::Addr;
 use actix_web::middleware::Logger;
@@ -7,12 +9,15 @@ use app::error::ConfigError;
 use app::service::privilege_service_impl::PrivilegeServiceImpl;
 use diesel::{prelude::*, r2d2::ConnectionManager};
 use log::info;
+use rdkafka::config::ClientConfig;
+use rdkafka::producer::FutureProducer;
 use r2d2::Pool;
 
 use crate::app::api::privilege_controller;
 use crate::app::api::state::AppState;
 use crate::app::repository::database_executor::DatabaseExecutor;
 use crate::app::repository::privilege_repository::*;
+use crate::app::repository::statistics_repository::StatisticsRepository;
 
 pub mod app;
 pub mod config;
@@ -57,9 +62,16 @@ async fn main() -> std::io::Result<()> {
         privilege_repository: Box::new(privilege_repository),
     };
 
+    let producer: FutureProducer = ClientConfig::new()
+        .set("bootstrap.servers", "kafka1:9092,kafka2:9092")
+        .create()
+        .expect("Producer creation failed");
+    let statistics_repository = Arc::new(StatisticsRepository::new(producer));
+
     HttpServer::new(move || {
         let state = AppState {
             privilege_service: Box::new(privilege_service.clone()),
+            statistics_repository: statistics_repository.clone(),
             config: cfg.clone(),
         };
 

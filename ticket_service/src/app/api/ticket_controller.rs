@@ -9,7 +9,7 @@ use validator::Validate;
 use crate::app::api::auth_token::AuthenticationGuard;
 use crate::app::api::error_controller::*;
 use crate::app::api::state::AppState;
-use crate::app::models;
+use crate::app::dto_models;
 
 #[derive(Serialize, Deserialize)]
 pub struct ListTicketsQuery {
@@ -31,7 +31,7 @@ pub async fn list(state: Data<AppState>, auth_guard: AuthenticationGuard, query:
 pub async fn create(
     state: Data<AppState>,
     _: AuthenticationGuard,
-    ticket: web::Json<models::TicketCreateRequest>
+    ticket: web::Json<dto_models::TicketCreateRequest>
 ) -> Result<impl Responder, ErrorResponse> {
     state
         .ticket_service
@@ -74,7 +74,7 @@ pub async fn patch_id(
     state: Data<AppState>,
     _: AuthenticationGuard,
     path: Path<DeleteRequest>,
-    ticket: web::Json<models::TicketRequest>,
+    ticket: web::Json<dto_models::TicketRequest>,
 ) -> Result<impl Responder, ErrorResponse> {
     let ticket_uid = path.ticket_uid;
     state

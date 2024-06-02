@@ -1,7 +1,9 @@
 use chrono::prelude::*;
 use chrono::serde::ts_seconds_option;
-use serde_derive::{Deserialize, Serialize};
 use std::{boxed::Box, collections::HashMap, sync::Arc};
+
+use serde_derive::{Deserialize, Serialize};
+use deadpool_lapin::Pool;
 
 use futures::lock::Mutex;
 
@@ -31,4 +33,5 @@ pub struct AppState {
     pub gateway_service: Box<dyn GatewayService + Sync + Send>,
     pub user_tokens: HashMapSyncContainer<String, User>,
     pub config: Config,
+    pub mq_pool: Pool,
 }

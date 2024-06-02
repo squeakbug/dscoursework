@@ -83,3 +83,18 @@ GRANT ALL PRIVILEGES ON TABLE privilege TO program;
 GRANT USAGE, SELECT ON SEQUENCE privilege_id_seq TO program;
 GRANT ALL PRIVILEGES ON TABLE privilege_history TO program;
 GRANT USAGE, SELECT ON SEQUENCE privilege_history_id_seq TO program;
+
+CREATE DATABASE stat;
+GRANT ALL PRIVILEGES ON DATABASE stat TO program;
+
+\c stat
+
+CREATE TABLE IF NOT EXISTS messages
+(
+    id SERIAL PRIMARY KEY,
+    service TEXT,
+    data TEXT
+);
+
+GRANT ALL PRIVILEGES ON TABLE messages TO program;
+GRANT USAGE, SELECT ON SEQUENCE messages_id_seq TO program;

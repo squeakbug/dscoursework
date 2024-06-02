@@ -19,7 +19,11 @@ pub async fn list_privileges(
         .privilege_service
         .list_privileges(Some(username))
         .await
-        .map_err(ErrorResponse::map_io_error)
+        .map_err(|err| {
+            let repo = &state.statistics_repository;
+            let _ = repo.create_error_message(err);
+            ErrorResponse::map_io_error(err)
+        })
         .map(|privileges| HttpResponse::Ok().json(privileges))
 }
 

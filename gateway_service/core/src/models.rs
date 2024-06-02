@@ -10,8 +10,6 @@ pub mod privilege_full_info;
 pub use self::privilege_full_info::PrivilegeFullInfo;
 pub mod privilege_response;
 pub use self::privilege_response::PrivilegeResponse;
-pub mod privilege_create_request;
-pub use self::privilege_create_request::PrivilegeCreateRequest;
 pub mod privilege_request;
 pub use self::privilege_request::PrivilegeRequest;
 pub mod pagination_response;

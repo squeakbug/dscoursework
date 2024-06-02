@@ -37,6 +37,8 @@ deadpool = "0.9.0"
 deadpool-lapin = "0.9.0"
 lapin = "1.8.0"
 tokio-amqp = "1.0.0"
+tokio = "1.37.0"
 ticket_service_api = { path = "../ticket-service-api" }
 uuid = { version = "^1.0", features = ["serde", "v4"] }
 validator = { version = "0.16.1", features = ["derive"] }
+rdkafka = "0.36.2"

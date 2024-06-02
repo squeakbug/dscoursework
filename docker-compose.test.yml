@@ -122,6 +122,21 @@ services:
     networks:
       - services-network
 
+  identity-provider:
+    build: oidc_identity_provider
+    image: squeakbug73/identity-provider:0.1
+    restart: unless-stopped
+    ports:
+      - "8020:8020"
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=stat
+    networks:
+      - services-network
+
   kafdrop:
     image: obsidiandynamics/kafdrop
     restart: "no"

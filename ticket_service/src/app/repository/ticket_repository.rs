@@ -2,8 +2,8 @@ use actix::prelude::*;
 use async_trait::async_trait;
 
 use crate::app::domain::ticket::Ticket;
-use crate::app::models::ticket_request::TicketRequest;
-use crate::app::models::ticket_response::TicketResponse;
+use crate::app::dto_models::ticket_request::TicketRequest;
+use crate::app::dto_models::ticket_response::TicketResponse;
 use crate::app::repository::database_executor::DatabaseExecutor;
 use crate::app::repository::ticket_repository_handlers::{
     CreateTicket, DeleteTicket, GetTicket, GetTickets, UpdateTicket,

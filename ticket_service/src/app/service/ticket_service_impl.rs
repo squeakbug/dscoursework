@@ -2,7 +2,7 @@ use std::boxed::Box;
 
 use async_trait::async_trait;
 
-use crate::app::models::{self, TicketRequest};
+use crate::app::dto_models::{self, TicketRequest};
 use crate::app::repository::ticket_repository::TicketRepository;
 use crate::app::service::service_error::Result;
 use crate::app::service::ticket_service::TicketService;
@@ -14,7 +14,7 @@ pub struct TicketServiceImpl {
 
 #[async_trait]
 impl TicketService for TicketServiceImpl {
-    async fn get_ticket(&self, ticket_uid: uuid::Uuid) -> Result<models::TicketResponse> {
+    async fn get_ticket(&self, ticket_uid: uuid::Uuid) -> Result<dto_models::TicketResponse> {
         self.ticket_repository.get_ticket(ticket_uid).await
     }
 
@@ -22,11 +22,11 @@ impl TicketService for TicketServiceImpl {
         &self,
         username: Option<String>,
         flight_number: Option<String>,
-    ) -> Result<Vec<models::TicketResponse>> {
+    ) -> Result<Vec<dto_models::TicketResponse>> {
         self.ticket_repository.get_tickets(username, flight_number).await
     }
 
-    async fn create_ticket(&self, create_request: &models::TicketCreateRequest) -> Result<models::TicketResponse> {
+    async fn create_ticket(&self, create_request: &dto_models::TicketCreateRequest) -> Result<dto_models::TicketResponse> {
         let request = TicketRequest {
             ticket_uid: uuid::Uuid::new_v4(),
             flight_number: create_request.flight_number.clone(),
@@ -37,7 +37,7 @@ impl TicketService for TicketServiceImpl {
         self.ticket_repository
             .create_ticket(&request)
             .await
-            .map(|ticket| models::TicketResponse {
+            .map(|ticket| dto_models::TicketResponse {
                 id: ticket.id,
                 price: ticket.price,
                 flight_number: ticket.flight_number,
@@ -50,15 +50,15 @@ impl TicketService for TicketServiceImpl {
     async fn edit_ticket(
         &self,
         ticket_uid: uuid::Uuid,
-        request: &models::TicketRequest,
-    ) -> Result<models::TicketResponse> {
+        request: &dto_models::TicketRequest,
+    ) -> Result<dto_models::TicketResponse> {
         self.ticket_repository.edit_ticket(ticket_uid, request).await
     }
 
     async fn delete_ticket(&self, ticket_uid: uuid::Uuid) -> Result<()> {
         let ticket = self.ticket_repository.get_ticket(ticket_uid).await?;
 
-        let request = models::TicketRequest {
+        let request = dto_models::TicketRequest {
             status: String::from("CANCELED"),
             flight_number: ticket.flight_number,
             ticket_uid,
