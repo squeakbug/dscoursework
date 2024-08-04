@@ -6,9 +6,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { provideNativeDateAdapter } from '@angular/material/core';
 
-import { ToolbarComponent } from 'src/app/shared/toolbar/toolbar.component';
-import { FooterComponent } from 'src/app/shared/footer/footer.component';
-
 @Component({
   selector: 'app-index',
   standalone: true,
@@ -16,9 +13,7 @@ import { FooterComponent } from 'src/app/shared/footer/footer.component';
     MatInputModule,
     MatButtonModule,
     MatDatepickerModule,
-    MatFormFieldModule,
-    ToolbarComponent,
-    FooterComponent,
+    MatFormFieldModule
   ],
   templateUrl: './index.component.html',
   styleUrl: './index.component.scss',

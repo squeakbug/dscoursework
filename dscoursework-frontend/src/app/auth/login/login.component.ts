@@ -6,6 +6,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
+import { OAuthService } from 'angular-oauth2-oidc';
+import { filter } from 'rxjs/operators';
+
+import { authCodeFlowConfig } from './login.config';
 import { ImageLoaderService } from '../../services/image-loader.service';
 
 @Component({
@@ -18,8 +22,19 @@ import { ImageLoaderService } from '../../services/image-loader.service';
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   logoUrl: string = '';
+  title = "Test";
 
-  constructor(private formBuilder: FormBuilder, private imageLoader: ImageLoaderService) {
+  constructor(
+    private formBuilder: FormBuilder, 
+    private imageLoader: ImageLoaderService,
+    private oauthService: OAuthService,
+  ) {
+    this.oauthService.configure(authCodeFlowConfig);
+    this.oauthService.loadDiscoveryDocumentAndLogin();
+    this.oauthService.events
+      .pipe(filter((e) => e.type === 'token_received'))
+      .subscribe((_) => this.oauthService.loadUserProfile());
+
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
@@ -28,6 +43,8 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadLogo()
+
+
   }
 
   loadLogo() {
@@ -44,4 +61,23 @@ export class LoginComponent implements OnInit {
       return;
     }
   }
+
+  get userName(): string | null {
+    const claims = this.oauthService.getIdentityClaims();
+    if (!claims) return null;
+    return claims['given_name'];
+  }
+
+  get idToken(): string {
+    return this.oauthService.getIdToken();
+  }
+
+  get accessToken(): string {
+    return this.oauthService.getAccessToken();
+  }
+
+  refresh() {
+    this.oauthService.refreshToken();
+  }
+
 }
