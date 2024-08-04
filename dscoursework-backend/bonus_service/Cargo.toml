@@ -1,0 +1,41 @@
+[package]
+authors = ["squeakbug <squeakbug73@outlook.com>"]
+name = "bonus-service"
+version = "0.0.1"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+actix.workspace = true
+actix-cors.workspace = true
+actix-files.workspace = true
+actix-rt.workspace = true
+actix-web.workspace = true
+actix-web-validator.workspace = true
+anyhow.workspace = true
+async-trait.workspace = true
+chrono.workspace = true
+config.workspace = true
+derive_more.workspace = true
+dotenv.workspace = true
+env_logger.workspace = true
+futures.workspace = true
+jsonwebtoken.workspace = true
+log.workspace = true
+num_cpus.workspace = true
+once_cell.workspace = true
+r2d2.workspace = true
+rdkafka.workspace = true
+reqwest.workspace = true
+serde.workspace = true
+serde_derive.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tokio-timer.workspace = true
+uuid.workspace = true
+validator.workspace = true
+
+[dependencies.diesel]
+features = ["postgres", "r2d2", "uuid", "chrono"]
+version = "2.1.1"

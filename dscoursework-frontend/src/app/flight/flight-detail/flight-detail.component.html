@@ -1,0 +1,30 @@
+<mat-card class="container-fluid mat-elevation-z8">
+  <div class="row">
+
+    <div class="left col-4">
+      <img class="flight-img" [src]="image" alt="Flight Image" mat-card-image layout-fill>
+    </div>
+
+    <div class="col-8">
+      <mat-card-header>
+        <mat-card-title>{{ flight?.flightNumber }}</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <p>Flight Number: {{ flight?.flightNumber }}</p>
+        <p>Departure: {{ flight?.fromAirport }}</p>
+        <p>Arrival: {{ flight?.toAirport }}</p>
+        <p>Departure Date: {{ flight?.date }}</p>
+        <p>Price: {{ flight?.price }}</p>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-stroked-button color="primary" (click)="openDialog('0ms', '0ms')">
+            Выбрать билет
+        </button>
+      </mat-card-actions>
+    </div>
+
+  </div>
+
+</mat-card>

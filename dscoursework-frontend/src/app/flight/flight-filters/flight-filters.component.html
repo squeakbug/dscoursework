@@ -1,0 +1,46 @@
+<div class="container">
+    <mat-accordion>
+        <mat-expansion-panel>
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              Вылет из
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+
+          <mat-selection-list #shoes>
+            @for (shoe of [1,2,3]; track shoe) {
+              <mat-list-option>{{shoe}}</mat-list-option>
+            }
+          </mat-selection-list>
+        </mat-expansion-panel>
+
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Авиакомпании
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <mat-selection-list #shoes>
+              @for (shoe of [1,2,3]; track shoe) {
+                <mat-list-option>{{shoe}}</mat-list-option>
+              }
+            </mat-selection-list>
+          </mat-expansion-panel>
+
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                Стоимость
+              </mat-panel-title>
+            </mat-expansion-panel-header>
+
+            <mat-slider min="0" max="100000" step="1000" showTickMarks discrete [displayWith]="formatLabel">
+                <input matSliderThumb>
+            </mat-slider>
+          </mat-expansion-panel>
+    </mat-accordion>
+
+    <button class="button" mat-stroked-button color="primary">Показать все фильтры</button>
+    <button class="button" mat-stroked-button color="primary">Очистить</button>
+</div>

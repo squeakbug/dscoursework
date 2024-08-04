@@ -1,0 +1,21 @@
+<mat-card class="mat-elevation-z8">
+  <mat-card-header>
+    <mat-card-title>{{ ticket?.flightNumber }}</mat-card-title>
+  </mat-card-header>
+
+  <img [src]="image" alt="Flight Image" mat-card-imagelayout-fill>
+
+  <mat-card-content>
+    <p>Flight Number: {{ ticket?.flightNumber }}</p>
+    <p>Departure: {{ ticket?.fromAirport }}</p>
+    <p>Arrival: {{ ticket?.toAirport }}</p>
+    <p>Departure Date: {{ ticket?.date }}</p>
+    <p>Price: {{ ticket?.price }}</p>
+  </mat-card-content>
+
+  <mat-card-actions class="card-text bg-white p-1">
+    <button mat-button (click)="cancelOrder(ticket)">
+        Cancel
+    </button>
+  </mat-card-actions>
+</mat-card>

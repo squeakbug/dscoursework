@@ -35,7 +35,7 @@ jobs:
         timeout-minutes: 5
         run: |
           docker compose -f docker-compose.prod.yml up -d
-      
+
       - name: Run API Tests
         uses: matt-ball/newman-action@master
         with:

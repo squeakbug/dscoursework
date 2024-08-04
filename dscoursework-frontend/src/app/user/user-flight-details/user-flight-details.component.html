@@ -1,0 +1,7 @@
+<mat-grid-list cols="3">
+    @for (ticket of this.tickets(); track ticket) {
+        <mat-grid-tile>
+            <app-user-flight-detail></app-user-flight-detail>
+        </mat-grid-tile>
+    }
+</mat-grid-list>

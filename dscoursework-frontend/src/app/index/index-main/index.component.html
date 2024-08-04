@@ -1,0 +1,48 @@
+<app-toolbar></app-toolbar>
+
+<div class="container">
+
+    <div class="logo-title">
+        <h1>Бронирование авиабилетов</h1>
+    </div>
+
+    <div class="row search mat-elevation-z2">
+        <form class="col-8 example-form">
+            <table class="example-full-width" cellspacing="0">
+                <tr>
+                <td>
+                    <mat-form-field class="from-form example-full-width">
+                        <mat-label>Откуда</mat-label>
+                        <input matInput placeholder="Москва">
+                    </mat-form-field>
+                </td>
+                <td>
+                    <mat-form-field class="example-full-width">
+                        <mat-label>Куда</mat-label>
+                        <input matInput placeholder="Санкт-Петербург">
+                    </mat-form-field>
+                </td>
+                <td>
+                    <mat-form-field class="example-full-width">
+                        <mat-label>Choose a date</mat-label>
+                        <input matInput [matDatepicker]="datepicker">
+                        <mat-hint>MM/DD/YYYY</mat-hint>
+                        <mat-datepicker-toggle matIconSuffix [for]="datepicker"></mat-datepicker-toggle>
+                        <mat-datepicker #datepicker>
+                            <mat-datepicker-actions>
+                            <button mat-button matDatepickerCancel>Cancel</button>
+                            <button mat-raised-button color="primary" matDatepickerApply>Apply</button>
+                            </mat-datepicker-actions>
+                        </mat-datepicker>
+                    </mat-form-field>
+                </td>
+                </tr>
+            </table>
+        </form>
+
+        <button mat-stroked-button class="col-3 seach-btn" color="primary">Найти билеты</button>
+    </div>
+
+</div>
+
+<app-footer></app-footer>

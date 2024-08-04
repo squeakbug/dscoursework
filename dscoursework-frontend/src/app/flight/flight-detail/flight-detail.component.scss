@@ -1,0 +1,24 @@
+.container-fluid {
+    display: flex;
+    flex-direction: row;
+    padding: 0pt;
+    width: fit-content;
+    border-radius: 30px !important;
+}
+
+.mat-elevation-z8 {
+    margin: 20px;
+}
+
+.flight-img {
+    height: 225pt;
+    border-radius: 30px !important;
+}
+
+.mat-button {
+    width: 1000pt;
+}
+
+.left {
+    overflow: hidden;
+}

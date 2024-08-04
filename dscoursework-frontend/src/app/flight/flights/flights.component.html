@@ -1,0 +1,41 @@
+<app-toolbar></app-toolbar>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="filters col-4">
+            <app-flight-filters></app-flight-filters>
+        </div>
+
+        <div class="fligts col-8">
+            @for (flight of pagedFligts(); track flight) {
+                <flight-detail [flight]="flight"></flight-detail>
+            }
+
+            <!--
+            <div class="form-inline float-start mr-1">
+                <mat-form-field>
+                    <mat-label>На странице:</mat-label>
+                    <mat-select class="form-control" [value]="flightsPerPage()"
+                        (change)="changePageSize($any($event).target.value)"
+                        [disabled]="isServer">
+                        @for (page of perPage; track page) {
+                            <mat-option [value]="page">{{ page }}</mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <div class="btn-group float-end">
+                <button *counter="let page of pageCount()"
+                        (click)="changePage(page)"
+                        class="btn btn-outline-primary"
+                        [class.active]="page == selectedPage()"
+                        [disabled]="isServer">
+                    {{page}}
+                </button>
+            </div>
+            -->
+
+        </div>
+    </div>
+</div>

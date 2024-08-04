@@ -1,0 +1,11 @@
+<mat-toolbar class="container-fluid">
+    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" dynamicHeight>
+        <mat-tab label="Список билетов" />
+        <mat-tab label="Профиль" />
+    </mat-tab-group>
+
+    <div class="spacer"></div>
+
+    <button *ngIf="!isAuth" (click)="login()" mat-stroked-button color="primary">Войти</button>
+    <button *ngIf="isAuth" (click)="logout()" mat-stroked-button color="primary">Выйти</button>
+</mat-toolbar>

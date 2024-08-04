@@ -1,22 +1,13 @@
 repos:
-- repo: https://github.com/doublify/pre-commit-rust
-  rev: v1.0
-  hooks:
-  -   id: fmt
-      name: gateway-service-fmt
-      args: ['--all', '--manifest-path',  './gateway_service/Cargo.toml']
-  -   id: fmt
-      name: bonus-service-fmt
-      args: ['--manifest-path',  './bonus_service/Cargo.toml']
-  -   id: fmt
-      name: ticket-service-fmt
-      args: ['--manifest-path',  './ticket_service/Cargo.toml']
-  -   id: fmt
-      name: flight-service-fmt
-      args: ['--manifest-path',  './flight_service/Cargo.toml']
+#- repo: https://github.com/pre-commit/pre-commit-hooks
+#  rev: v2.3.0
+#  hooks:
+#  - id: check-yaml
+#  - id: end-of-file-fixer
+#  - id: trailing-whitespace
 
 - repo: https://github.com/DevinR528/cargo-sort
   rev: v1.0.9
   hooks:
-  -   id: cargo-sort
-      args: ['gateway_service', 'ticket_service', 'flight_service', 'bonus_service']
+  - id: cargo-sort
+    args: ["dscoursework-backend/Cargo.toml"]

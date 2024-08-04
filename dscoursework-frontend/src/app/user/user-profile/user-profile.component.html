@@ -1,0 +1,43 @@
+<app-toolbar></app-toolbar>
+
+<div class="container emp-profile">
+  <form method="post">
+      <div class="row">
+          <div class="col-md-4">
+            <div class="profile-img">
+              <img [src]="user.imageUrl" alt=""/>
+              <div class="file btn btn-lg btn-primary">
+                Change Photo
+                <input type="file" name="file"/>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="profile-head">
+              <h5>
+                  {{ user.name }}
+              </h5>
+              <h6>
+                  {{ user.status }}
+              </h6>
+            </div>
+          </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4">
+          <button mat-button disabled>Изменить профиль</button>
+        </div>
+
+        <div class="col-md-8">
+          <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" dynamicHeight>
+            <mat-tab label="О пользователе">
+              <app-user-details></app-user-details>
+            </mat-tab>
+            <mat-tab label="Список броней">
+              <app-user-flight-details></app-user-flight-details>
+            </mat-tab>
+          </mat-tab-group>
+        </div>
+      </div>
+  </form>
+</div>
