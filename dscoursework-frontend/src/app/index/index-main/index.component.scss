@@ -1,10 +1,6 @@
-.logo-title {
-    align-self: center;
-    text-align: center;
-    margin: 50pt;
-}
-
 .search {
+    display: flex;
+    flex-direction: row;
     align-self: center;
     align-items: center;
     display: flex;
@@ -12,12 +8,52 @@
     border-radius: 30pt;
 }
 
+@media (width <= 1200px) {
+    .search {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.logo-title {
+    align-self: center;
+    text-align: center;
+    margin: 50pt;
+}
+
 .from-form {
     padding-left: 30pt;
+}
+
+@media (width <= 1200px) {
+    .example-form {
+        margin: auto;
+        align-self: center;
+        align-items: center;
+        padding-left: 0pt;
+    }
+
+    .example-full-width {
+        margin: auto;
+        align-self: center;
+        align-items: center;
+    }
+
+    .from-form {
+        padding: 0pt;
+    }
 }
 
 .seach-btn {
     height: 50pt;
     margin-left: 10pt;
     border-radius: 20pt;
+}
+
+@media (width <= 1200px) {
+    .seach-btn {
+        height: 100pt;
+        margin: 50pt;
+        border-radius: 20pt;
+    }
 }

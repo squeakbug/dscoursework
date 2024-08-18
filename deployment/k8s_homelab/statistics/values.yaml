@@ -1,0 +1,15 @@
+service:
+  port: 8090
+  image:
+    name: >
+      "{{ .Values.global.containerRegistryAddr }}/
+      {{ .Values.global.containerRegistryUser }}/
+      /statistics-service"
+    version: "0.1"
+  resources:
+    requests:
+      cpu: 1
+      memory: 512Mi
+    limits:
+      cpu: 1
+      memory: 512Mi

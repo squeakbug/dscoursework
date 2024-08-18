@@ -1,8 +1,10 @@
 <div class="container">
 
-    <div class="logo-title">
-        <h1>Бронирование авиабилетов</h1>
-    </div>
+    @if (!isFinded) {
+        <div class="logo-title">
+            <h1>Бронирование авиабилетов</h1>
+        </div>
+    }
 
     <div class="row search mat-elevation-z2">
         <form class="col-8 example-form">
@@ -11,25 +13,25 @@
                 <td>
                     <mat-form-field class="from-form example-full-width">
                         <mat-label>Откуда</mat-label>
-                        <input matInput placeholder="Москва">
+                        <input name="fromAirport" [(ngModel)]="fromAirport" matInput placeholder="Москва"/>
                     </mat-form-field>
                 </td>
                 <td>
                     <mat-form-field class="example-full-width">
                         <mat-label>Куда</mat-label>
-                        <input matInput placeholder="Санкт-Петербург">
+                        <input name="toAirport" [(ngModel)]="toAirport" matInput placeholder="Санкт-Петербург"/>
                     </mat-form-field>
                 </td>
                 <td>
                     <mat-form-field class="example-full-width">
                         <mat-label>Выберите дату</mat-label>
-                        <input matInput [matDatepicker]="datepicker">
-                        <mat-hint>MM/DD/YYYY</mat-hint>
+                        <input name="departureDate" [(ngModel)]="departureDate" matInput [matDatepicker]="datepicker">
+                        <mat-hint>ММ/ДД/ГГГГ</mat-hint>
                         <mat-datepicker-toggle matIconSuffix [for]="datepicker"></mat-datepicker-toggle>
                         <mat-datepicker #datepicker>
                             <mat-datepicker-actions>
-                            <button mat-button matDatepickerCancel>Cancel</button>
-                            <button mat-raised-button color="primary" matDatepickerApply>Apply</button>
+                            <button mat-button matDatepickerCancel>Отмена</button>
+                            <button mat-raised-button color="primary" matDatepickerApply>Применить</button>
                             </mat-datepicker-actions>
                         </mat-datepicker>
                     </mat-form-field>
@@ -38,7 +40,17 @@
             </table>
         </form>
 
-        <button mat-stroked-button class="col-3 mat-elevation-z3 seach-btn" color="primary">Найти билеты</button>
+        <button
+            (click)="findFlights()" 
+            mat-stroked-button
+            class="col-3 mat-elevation-z3 seach-btn" 
+            color="primary">
+            Найти билеты
+        </button>
     </div>
+
+    @if (isFinded) {
+        <app-flights [flights]="flights"></app-flights>
+    }
 
 </div>

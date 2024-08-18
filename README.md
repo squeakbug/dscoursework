@@ -2,7 +2,7 @@
 
 ![GitHub Classroom Workflow](../../workflows/GitHub%20Classroom%20Workflow/badge.svg?branch=master)
 
-### Сборка
+## Сборка
 
 Тестовая сборка:
 
@@ -10,7 +10,7 @@
 docker-compose -f docker-compose.test.yml build
 ```
 
-### Запуск
+## Запуск
 
 Docker compose:
 
@@ -21,6 +21,9 @@ docker-compose -f docker-compose.test.yml run
 Helm:
 
 ```sh
-helm install -f postgres-chart/values.yaml postgres ./postgres-chart
-helm install -f services-chart/values.yaml microservices ./services-chart
+helm install dscoursework ./deployment
 ```
+
+## TODO
+
+- [ ] Настроить ноды на кластере под Spin runtime

@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # See: https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/
+  name: {{ .Chart.Name }}
+  namespace: rsoi
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/version: "{{ .Values.service.image.version }}"
+    app.kubernetes.io/component: application
+    app.kubernetes.io/part-of: micro-services
+    app.kubernetes.io/managed-by: helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/version: "{{ .Values.service.image.version }}"
+        app.kubernetes.io/component: application
+        app.kubernetes.io/part-of: micro-services
+        app.kubernetes.io/managed-by: helm
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: squeakbug73/ticket-service:0.1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8070
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: ticket-config
+              key: database-url
+        - name: LISTEN_ADDRESS
+          valueFrom:
+            configMapKeyRef:
+              name: ticket-config
+              key: listen-address

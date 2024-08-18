@@ -1,7 +1,8 @@
-import { Component, Signal, computed, signal } from "@angular/core";
+import { Component, Input, Signal, computed, signal } from "@angular/core";
 import { Router } from "@angular/router";
 import { NgFor, CurrencyPipe } from "@angular/common";
 
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
@@ -24,6 +25,7 @@ import { FlightFiltersComponent } from "../flight-filters/flight-filters.compone
         FlightDetailComponent,
         FlightFiltersComponent,
         ToolbarComponent,
+        MatPaginatorModule,
         MatSelectModule,
         MatToolbarModule,
         MatCardModule,
@@ -37,11 +39,12 @@ import { FlightFiltersComponent } from "../flight-filters/flight-filters.compone
 })
 export class FlightsComponent {
     readonly perPage: number[] = [10, 20, 50, 100];
-    flights: Signal<FlightResponse[]> = signal([]);
     flightsPerPage = signal(this.perPage[0]);
     selectedPage = signal(1);
     pagedFligts: Signal<FlightResponse[]> = signal([]);
     pageCount: Signal<number>;
+
+    @Input() flights: Signal<FlightResponse[]> = signal([]);
 
     constructor(private repository: FlightRepository,
         private router: Router,

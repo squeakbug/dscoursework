@@ -1,0 +1,6 @@
+global:
+  # containerRegistryAddr - Container registry address
+  containerRegistryAddr:
+    "docker.io"
+  containerRegistryUser:
+    "squeakbug73"

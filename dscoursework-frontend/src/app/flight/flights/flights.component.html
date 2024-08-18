@@ -1,5 +1,3 @@
-<app-toolbar></app-toolbar>
-
 <div class="container-fluid">
     <div class="row">
         <div class="filters col-4">
@@ -35,6 +33,12 @@
                 </button>
             </div>
             -->
+
+            <mat-paginator 
+                [length]="pagedFligts.length"
+                [pageSizeOptions]="perPage" 
+                aria-label="Select page">
+            </mat-paginator>
 
         </div>
     </div>
