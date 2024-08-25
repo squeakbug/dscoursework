@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,7 +11,7 @@ import { sampleAnimeHeroesImageUrls } from 'src/assets/sample.animeHeroesImagesU
 
 @Component({
   standalone: true,
-  selector: 'flight-detail',
+  selector: 'app-flight-detail',
   templateUrl: './flight-detail.component.html',
   styleUrls: ['./flight-detail.component.scss'],
   imports: [
@@ -20,15 +20,13 @@ import { sampleAnimeHeroesImageUrls } from 'src/assets/sample.animeHeroesImagesU
     MatDialogModule,
   ],
 })
-export class FlightDetailComponent implements OnInit {
-  image: String = sampleAnimeHeroesImageUrls[Math.floor(Math.random() * sampleAnimeHeroesImageUrls.length)];
+export class FlightDetailComponent {
+  image: String = sampleAnimeHeroesImageUrls[
+    Math.floor(Math.random() * sampleAnimeHeroesImageUrls.length)
+  ];
   @Input() flight: FlightResponse | null = null;
 
   constructor(public dialog: MatDialog) {
-
-  }
-
-  ngOnInit(): void {
 
   }
 

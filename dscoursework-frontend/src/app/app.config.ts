@@ -9,13 +9,14 @@ import { FlightRepository } from './services/flight.repository';
 import { DataSource } from './services/datasource';
 import { PlatformService } from './platform.service';
 import { TicketRepository } from './services/ticket.repository';
+import { FlightRepositoryMock } from './services/flight.repository.mock';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(appRoutes),
     provideAnimationsAsync(),
     importProvidersFrom(HttpClientModule),
-    FlightRepository,
+    { provide: FlightRepository, useClass: FlightRepositoryMock },
     TicketRepository,
     DataSource,
     PlatformService,

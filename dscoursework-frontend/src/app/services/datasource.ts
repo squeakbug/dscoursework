@@ -36,7 +36,7 @@ export class DataSource {
         }
     }
 
-    getTickets(): Observable<TicketResponse[]> {
+    listTickets(): Observable<TicketResponse[]> {
         return this.http.get<TicketResponse[]>(`${this.baseUrl}/tickets`)
     }
 

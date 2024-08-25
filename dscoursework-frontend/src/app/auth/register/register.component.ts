@@ -17,7 +17,7 @@ import { ImageLoaderService } from '../../services/image-loader.service';
 })
 export class RegisterComponent implements OnInit {
   registerForm: FormGroup;
-  logoUrl: string = '';
+  logoUrl = "";
 
   constructor(private formBuilder: FormBuilder, private imageLoader: ImageLoaderService) {
     this.registerForm = this.formBuilder.group({

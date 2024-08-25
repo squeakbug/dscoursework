@@ -1,5 +1,10 @@
 <mat-toolbar class="container-fluid">
-    <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" dynamicHeight>
+    <mat-tab-group 
+        (selectedTabChange)="selectedTabChangeHandle($event)"
+        mat-stretch-tabs="false" 
+        mat-align-tabs="start" 
+        dynamicHeight>
+
         @if (isAuth) {
             <mat-tab label="Список билетов" />
             <mat-tab label="Профиль" />

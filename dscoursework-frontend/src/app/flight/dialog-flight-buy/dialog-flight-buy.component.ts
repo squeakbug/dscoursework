@@ -1,14 +1,15 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 
-import { FlightResponse } from 'src/app/services';
+import { FlightResponse, TicketPurchaseRequest } from 'src/app/services';
+import { TicketRepository } from 'src/app/services/ticket.repository';
 
 @Component({
   standalone: true,
-  selector: 'dialog-flight-buy',
+  selector: 'app-dialog-flight-buy',
   templateUrl: './dialog-flight-buy.component.html',
   styleUrls: ['./dialog-flight-buy.component.scss'],
   imports: [
@@ -17,18 +18,22 @@ import { FlightResponse } from 'src/app/services';
     MatDialogModule,
   ],
 })
-export class DialogFlightBuyComponent implements OnInit {
+export class DialogFlightBuyComponent {
   @Input() flight: FlightResponse | null = null;
 
-  constructor(public dialogRef: MatDialogRef<DialogFlightBuyComponent>) {
+  constructor(
+    public dialogRef: MatDialogRef<DialogFlightBuyComponent>,
+    private ticketRepository: TicketRepository,
+  ) {
 
   }
 
-  ngOnInit(): void {
-
-  }
-
-  orderFlight(flight: FlightResponse | null) {
-
+  orderFlight() {
+    const buyRequest: TicketPurchaseRequest = {
+      flightNumber: this.flight?.flightNumber,
+      paidFromBalance: false,
+      price: this.flight?.price,
+    }
+    this.ticketRepository.buyTicket(buyRequest);
   }
 }

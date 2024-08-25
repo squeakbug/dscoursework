@@ -21,7 +21,7 @@ import { ImageLoaderService } from '../../services/image-loader.service';
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
-  logoUrl: string = '';
+  logoUrl = "";
   title = "Test";
 
   constructor(
@@ -33,7 +33,7 @@ export class LoginComponent implements OnInit {
     this.oauthService.loadDiscoveryDocumentAndLogin();
     this.oauthService.events
       .pipe(filter((e) => e.type === 'token_received'))
-      .subscribe((_) => this.oauthService.loadUserProfile());
+      .subscribe((_subscriber) => this.oauthService.loadUserProfile());
 
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],

@@ -11,11 +11,12 @@
     <p>Arrival: {{ ticket?.toAirport }}</p>
     <p>Departure Date: {{ ticket?.date }}</p>
     <p>Price: {{ ticket?.price }}</p>
+    <p>Status: {{ ticket?.status }}</p>
   </mat-card-content>
 
   <mat-card-actions class="card-text bg-white p-1">
     <button mat-button (click)="cancelOrder(ticket)">
-        Cancel
+      Возврат
     </button>
   </mat-card-actions>
 </mat-card>

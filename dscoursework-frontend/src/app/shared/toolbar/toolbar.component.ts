@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { NgFor, NgIf } from '@angular/common';
 
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatTabsModule } from '@angular/material/tabs';
+import { MatTabsModule, MatTabChangeEvent } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 
 @Component({
@@ -31,5 +31,18 @@ export class ToolbarComponent {
 
   logout() {
     this.isAuth = false;
+  }
+
+  selectedTabChangeHandle(e: MatTabChangeEvent) {
+    switch (e.index) {
+      case 0:
+        this.router.navigate(['']);
+        break;
+      case 1:
+        this.router.navigate(['/profile']);
+        break;
+      default:
+        break;
+    }
   }
 }

@@ -5,7 +5,7 @@
             <div class="profile-img">
               <img [src]="user.imageUrl" alt=""/>
               <div class="file btn btn-lg btn-primary">
-                Change Photo
+                Изменить фото
                 <input type="file" name="file"/>
               </div>
             </div>
@@ -31,8 +31,11 @@
             <mat-tab label="О пользователе">
               <app-user-details></app-user-details>
             </mat-tab>
+            <mat-tab label="История балансного счета">
+              <app-balance-history [balanceHistory]="balanceHistory"></app-balance-history>
+            </mat-tab>
             <mat-tab label="Список броней">
-              <app-user-flight-details></app-user-flight-details>
+              <app-tickets [tickets]="tickets"></app-tickets>
             </mat-tab>
           </mat-tab-group>
         </div>

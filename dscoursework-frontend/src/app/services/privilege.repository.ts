@@ -1,11 +1,9 @@
 import { Injectable, Signal, signal } from "@angular/core";
 import { DataSource } from "./datasource";
 import { TicketResponse } from "../models/TicketResponse";
-import { TicketPurchaseRequest } from "../models/TicketPurchaseRequest";
-import { TicketPurchaseResponse } from "../models/TicketPurchaseResponse";
 
 @Injectable()
-export class TicketRepository {
+export class PrivilegeRepository {
 
     constructor(private dataSource: DataSource) {}
 
@@ -31,21 +29,5 @@ export class TicketRepository {
             }
         });
         return ticketSignal.asReadonly();
-    }
-
-    buyTicket(ticket: TicketPurchaseRequest): Signal<TicketPurchaseResponse | null> {
-        let ticketSignal = signal<TicketPurchaseResponse | null>(null);
-        this.dataSource.postTicket(ticket).subscribe(data => {
-            try {
-                ticketSignal.set(data);
-            } catch (ex) {
-                ticketSignal.set(null)
-            }
-        });
-        return ticketSignal.asReadonly();
-    }
-
-    deleteTicket(ticketUid: string) {
-        this.dataSource.deleteTicket(ticketUid)
     }
 }

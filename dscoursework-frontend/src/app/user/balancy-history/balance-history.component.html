@@ -1,12 +1,8 @@
 <div class="container-fluid">
     <div class="row">
-        <div class="filters col-4">
-            <app-flight-filters></app-flight-filters>
-        </div>
-
         <div class="fligts col-8">
-            @for (flight of flights(); track flight) {
-                <app-flight-detail [flight]="flight"></app-flight-detail>
+            @for (historyEntry of balanceHistory(); track historyEntry) {
+                <app-balance-details [balanceHistory]="historyEntry"></app-balance-details>
             }
 
             <mat-paginator

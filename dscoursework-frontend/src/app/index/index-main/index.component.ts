@@ -27,7 +27,6 @@ import { FlightResponse } from'src/app/services';
   templateUrl: './index.component.html',
   styleUrl: './index.component.scss',
   providers: [
-    FlightRepository,
     provideNativeDateAdapter()
   ],
 })
@@ -43,7 +42,7 @@ export class IndexComponent {
   isFinded: boolean = false;
   flights: Signal<FlightResponse[]> = signal([]);
 
-  readonly initPageNumber: number = 1;
+  readonly initPageNumber: number = 0;
   readonly initPageSize: number = 10;
 
   constructor(private flightRepo: FlightRepository) { 

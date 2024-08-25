@@ -4,18 +4,18 @@ import { FlightResponse } from "../models/FlightResponse";
 
 @Injectable()
 export class FlightRepository {
-    private flightsSignal = signal<FlightResponse[]>([]);
 
     constructor(private dataSource: DataSource) {}
 
     getFlights(page: number, size: number): Signal<FlightResponse[]> {
+        let flightsSignal = signal<FlightResponse[]>([]);
         this.dataSource.getFlights(page, size).subscribe(data => {
             try {
-                this.flightsSignal.set(data.items as FlightResponse[]);
+                flightsSignal.set(data.items as FlightResponse[]);
             } catch (ex) {
-                this.flightsSignal.set([])
+                flightsSignal.set([])
             }
         });
-        return this.flightsSignal.asReadonly();
+        return flightsSignal.asReadonly();
     }
 }
