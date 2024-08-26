@@ -6,9 +6,23 @@ import { TicketPurchaseResponse } from "../models/TicketPurchaseResponse";
 
 @Injectable()
 export class TicketRepositoryMock {
-    readonly tickets: Array<TicketResponse> = [
-        
-    ];
+    readonly tickets = new Array<TicketResponse>();
+
+    constructor() {
+        for (let i = 0; i < 100; i++) {
+            this.tickets.push(
+                {
+                    ticketUid: "1",
+                    flightNumber: "A123",
+                    fromAirport: "Moscow",
+                    toAirport: "London",
+                    date: "2022-01-01 10:00",
+                    price: 1000,
+                    status: TicketResponse.status.PAID
+                }
+            )
+        }
+    }
 
     getTicket(ticketUid: string): Signal<TicketResponse | null> {
         let ticketSignal = signal<TicketResponse>(this.tickets[0]);

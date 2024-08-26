@@ -1,9 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 
-import { BalanceHistory, TicketResponse } from 'src/app/services';
-import { sampleAnimeHeroesImageUrls } from 'src/assets/sample.animeHeroesImagesUrls';
+import { BalanceHistory } from 'src/app/models/BalanceHistory';
 
 @Component({
   standalone: true,
@@ -15,13 +14,8 @@ import { sampleAnimeHeroesImageUrls } from 'src/assets/sample.animeHeroesImagesU
     MatCardModule 
   ],
 })
-export class BalanceDetailsComponent implements OnInit {
+export class BalanceDetailsComponent {
 
   @Input() balanceHistory: BalanceHistory | null = null;
 
-  constructor() { }
-
-  ngOnInit(): void {
-
-  }
 }

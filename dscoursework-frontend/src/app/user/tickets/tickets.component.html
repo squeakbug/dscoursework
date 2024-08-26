@@ -1,13 +1,13 @@
 <div class="container-fluid">
     <div class="row">
         <div class="fligts col-8">
-            @for (ticket of tickets(); track ticket) {
+            @for (ticket of pagedTickets(); track ticket) {
                 <app-ticket-details [ticket]="ticket"></app-ticket-details>
             }
 
             <mat-paginator
-                [length]="length"
-                [pageSize]="pageSize"
+                [length]="length()"
+                [pageSize]="pageSize()"
                 [pageSizeOptions]="pageSizeOptions"
                 (page)="changePage($event)" 
                 aria-label="Select page">

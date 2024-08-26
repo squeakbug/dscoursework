@@ -1,14 +1,13 @@
-import { Component, Input, Signal, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, computed, Input, OnInit, Signal, signal } from '@angular/core';
 
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 
-import { PlatformService } from 'src/app/platform.service';
-import { BalanceHistory } from 'src/app/services';
-import { TicketRepository } from 'src/app/services/ticket.repository';
+import { BalanceHistory } from 'src/app/models/BalanceHistory';
 
 import { BalanceDetailsComponent } from '../balance-details/balance-details.component';
+import { PrivilegeInfoResponse } from 'src/app/models/PrivilegeInfoResponse';
+import { PrivilegeRepository } from 'src/app/services/privilege.repository';
 
 @Component({
   selector: 'app-balance-history',
@@ -21,24 +20,33 @@ import { BalanceDetailsComponent } from '../balance-details/balance-details.comp
   templateUrl: './balance-history.component.html',
   styleUrl: './balance-history.component.scss'
 })
-export class BalanceHistoryComponent {
+export class BalanceHistoryComponent implements OnInit {
+  privilege: Signal<PrivilegeInfoResponse | null> = signal(null);
+  history: Signal<BalanceHistory[] | undefined> = computed(() => this.privilege()?.history );
+  pagedHistory: Signal<BalanceHistory[] | undefined> = computed(() => {
+    return this.privilege()?.history?.slice(
+      this.pageIndex() * this.pageSize(),
+      (this.pageIndex() + 1) * this.pageSize()
+    )
+  });
+
   readonly pageSizeOptions: number[] = [10, 20, 50, 100];
-  pageIndex = 0;
-  pageSize = this.pageSizeOptions[this.pageIndex];
-  length = 50;
+  pageIndex = signal(0);
+  pageSize = signal(this.pageSizeOptions[this.pageIndex()]);
+  length = computed(() => this.history()?.length);
 
-  @Input() balanceHistory: Signal<BalanceHistory[]> = signal([]);
-
-  constructor(private repository: TicketRepository,
-    private router: Router,
-    private ps: PlatformService
+  constructor(
+    private privilegeRepository: PrivilegeRepository,
   ) {
 
   }
-
-  changePage(e: PageEvent) {
-
+  
+  ngOnInit(): void {
+    this.privilege = this.privilegeRepository.getPrivilege();
   }
 
-  get isServer() { return this.ps.isServer }
+  changePage(event: PageEvent) {
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+  }
 }

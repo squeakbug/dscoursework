@@ -4,7 +4,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 
-import { FlightResponse, TicketPurchaseRequest } from 'src/app/services';
+import { FlightResponse } from 'src/app/models/FlightResponse';
+import { TicketPurchaseRequest } from 'src/app/models/TicketPurchaseRequest';
 import { TicketRepository } from 'src/app/services/ticket.repository';
 
 @Component({

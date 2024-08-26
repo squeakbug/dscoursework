@@ -9,10 +9,10 @@ import { PaginationResponse } from "../models/PaginationResponse";
 import { TicketResponse } from "../models/TicketResponse";
 import { TicketPurchaseRequest } from "../models/TicketPurchaseRequest";
 import { TicketPurchaseResponse } from "../models/TicketPurchaseResponse";
-import { UserInfoResponse } from "../models/UserInfoResponse";
 import { PrivilegeInfoResponse } from "../models/PrivilegeInfoResponse";
 import { environment } from "src/environments/environment";
 import { samplePaginationResponse } from "src/assets/sample.PaginationResponse";
+import { PrivilegeShortInfo } from "../models/PrivilegeShortInfo";
 
 const SCHEMA = "http";
 const PORT = 3500;
@@ -53,19 +53,11 @@ export class DataSource {
         return this.http.delete(`${this.baseUrl}/tickets/${ticketUid}`)
     }
 
-    getMe(): Observable<UserInfoResponse> {
-        return this.http.get<UserInfoResponse>(`${this.baseUrl}/me`)
+    getMe(): Observable<PrivilegeShortInfo> {
+        return this.http.get<PrivilegeShortInfo>(`${this.baseUrl}/me`)
     }
 
     getPrivilege(): Observable<PrivilegeInfoResponse> {
         return this.http.get<PrivilegeInfoResponse>(`${this.baseUrl}/privilege`)
-    }
-
-    private getOptions() {
-        return {
-            headers: new HttpHeaders({
-                "Authorization": `Bearer<${this.auth_token}>`
-            })
-        }
     }
 }

@@ -26,14 +26,14 @@ export class PrivilegeRepositoryMock {
         ],
     }
 
-    getMe(): Signal<PrivilegeShortInfo> {
+    getMe(): Signal<PrivilegeShortInfo | null> {
         return signal({
             balance: this.privilege.balance,
             status: this.privilege.status,
         }).asReadonly();
     }
 
-    getPrivilege(): Signal<PrivilegeInfoResponse> {
+    getPrivilege(): Signal<PrivilegeInfoResponse | null> {
         return signal(this.privilege).asReadonly();
     }
 }

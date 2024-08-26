@@ -1,3 +1,16 @@
-<div class="container">
-  
-</div>
+<mat-card class="container-fluid mat-elevation-z8">
+    <div class="row">
+        <div class="col-8">
+        <mat-card-header>
+            <mat-card-title>{{ balanceHistory?.operationType }}</mat-card-title>
+        </mat-card-header>
+    
+        <mat-card-content>
+            <p>Balance diff: {{ balanceHistory?.balanceDiff }}</p>
+            <p>Data: {{ balanceHistory?.date }}</p>
+        </mat-card-content>
+
+        </div>
+    </div>
+</mat-card>
+

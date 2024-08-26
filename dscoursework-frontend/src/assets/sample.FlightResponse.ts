@@ -1,4 +1,4 @@
-import { FlightResponse } from "src/app/services";
+import { FlightResponse } from "src/app/models/FlightResponse";
 
 export const sampleFlightResponses: FlightResponse[] = [
     {

@@ -9,7 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatDialogModule } from '@angular/material/dialog';
 
-import { FlightResponse } from "src/app/services";
+import { FlightResponse } from "src/app/models/FlightResponse";
 import { FlightRepository } from "src/app/services/flight.repository";
 import { PlatformService } from "src/app/platform.service";
 import { CounterDirective } from "src/app/shared/counter.directive";

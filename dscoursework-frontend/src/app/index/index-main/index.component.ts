@@ -10,7 +10,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 
 import { FlightRepository } from 'src/app/services/flight.repository';
 import { FlightsComponent } from "../../flight/flights/flights.component";
-import { FlightResponse } from'src/app/services';
+import { FlightResponse } from 'src/app/models/FlightResponse';
 
 @Component({
   selector: 'app-index',

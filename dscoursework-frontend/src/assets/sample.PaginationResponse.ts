@@ -1,4 +1,4 @@
-import { PaginationResponse } from "src/app/services";
+import { PaginationResponse } from "src/app/models/PaginationResponse";
 import { sampleFlightResponses } from "./sample.FlightResponse";
 
 export const samplePaginationResponse: PaginationResponse[] = [{

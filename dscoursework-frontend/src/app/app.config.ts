@@ -10,6 +10,9 @@ import { DataSource } from './services/datasource';
 import { PlatformService } from './platform.service';
 import { TicketRepository } from './services/ticket.repository';
 import { FlightRepositoryMock } from './services/flight.repository.mock';
+import { TicketRepositoryMock } from './services/ticket.repository.mock';
+import { PrivilegeRepositoryMock } from './services/privilege.repository.mock';
+import { PrivilegeRepository } from './services/privilege.repository';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,7 +20,8 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     importProvidersFrom(HttpClientModule),
     { provide: FlightRepository, useClass: FlightRepositoryMock },
-    TicketRepository,
+    { provide: TicketRepository, useClass: TicketRepositoryMock },
+    { provide: PrivilegeRepository, useClass: PrivilegeRepositoryMock },
     DataSource,
     PlatformService,
     provideOAuthClient(),

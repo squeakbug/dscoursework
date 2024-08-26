@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 
-import { FlightResponse } from 'src/app/services';
+import { FlightResponse } from 'src/app/models/FlightResponse';
 import { DialogFlightBuyComponent } from '../dialog-flight-buy/dialog-flight-buy.component';
 import { sampleAnimeHeroesImageUrls } from 'src/assets/sample.animeHeroesImagesUrls';
 

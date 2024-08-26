@@ -1,13 +1,13 @@
 <div class="container-fluid">
     <div class="row">
         <div class="fligts col-8">
-            @for (historyEntry of balanceHistory(); track historyEntry) {
+            @for (historyEntry of pagedHistory(); track historyEntry) {
                 <app-balance-details [balanceHistory]="historyEntry"></app-balance-details>
             }
 
             <mat-paginator
-                [length]="length"
-                [pageSize]="pageSize"
+                [length]="length()"
+                [pageSize]="pageSize()"
                 [pageSizeOptions]="pageSizeOptions"
                 (page)="changePage($event)" 
                 aria-label="Select page">

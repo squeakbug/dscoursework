@@ -1,33 +1,35 @@
 import { Injectable, Signal, signal } from "@angular/core";
 import { DataSource } from "./datasource";
 import { TicketResponse } from "../models/TicketResponse";
+import { PrivilegeInfoResponse } from "../models/PrivilegeInfoResponse";
+import { PrivilegeShortInfo } from "../models/PrivilegeShortInfo";
 
 @Injectable()
 export class PrivilegeRepository {
 
     constructor(private dataSource: DataSource) {}
 
-    getTicket(ticketUid: string): Signal<TicketResponse | null> {
-        let ticketSignal = signal<TicketResponse | null>(null);
-        this.dataSource.getTicket(ticketUid).subscribe(data => {
+    getMe(): Signal<PrivilegeShortInfo | null> {
+        let privilegeSignal = signal<PrivilegeShortInfo | null>(null);
+        this.dataSource.getMe().subscribe(data => {
             try {
-                ticketSignal.set(data);
+                privilegeSignal.set(data);
             } catch (ex) {
-                ticketSignal.set(null)
+                privilegeSignal.set(null)
             }
         });
-        return ticketSignal.asReadonly();
+        return privilegeSignal.asReadonly();
     }
 
-    listTickets(): Signal<TicketResponse[]> {
-        let ticketSignal = signal<TicketResponse[]>([]);
-        this.dataSource.listTickets().subscribe(data => {
+    getPrivilege(): Signal<PrivilegeInfoResponse | null> {
+        let privilegeSignal = signal<PrivilegeShortInfo | null>(null);
+        this.dataSource.getPrivilege().subscribe(data => {
             try {
-                ticketSignal.set(data);
+                privilegeSignal.set(data);
             } catch (ex) {
-                ticketSignal.set([])
+                privilegeSignal.set(null)
             }
         });
-        return ticketSignal.asReadonly();
+        return privilegeSignal.asReadonly();
     }
 }
