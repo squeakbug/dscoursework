@@ -2,20 +2,14 @@ use std::env;
 
 #[derive(Debug, Clone)]
 pub struct Config {
-    pub listen_address: String,
+    pub listen_port: String,
     pub bonus_service_address: String,
     pub flight_service_address: String,
     pub ticket_service_address: String,
 
-    pub jwt_secret: String,
-    pub jwt_expires_in: String,
-    pub jwt_max_age: i64,
+    pub rmq_address: String,
 
-    pub okta_oauth_client_id: String,
-    pub okta_oauth_client_secret: String,
-    pub okta_oauth_redirect_url: String,
-    pub okta_oauth_domain: String,
-    pub okta_oauth_key: String,
+    pub jwt_secret: String,
 }
 
 use std::fmt::{Debug, Display, Formatter};
@@ -42,40 +36,28 @@ fn config(name: &str) -> Result<String, ConfigError> {
 }
 
 #[allow(unused)]
-fn config_default(name: &str, default: &str) -> String {
+fn config_default(name: &str, default: impl Into<String>) -> String {
     env::var(name).unwrap_or(dotenv::var(name).unwrap_or(default.into()))
 }
 
 impl Config {
     pub fn init() -> Result<Config, ConfigError> {
-        let listen_address = config_default("LISTEN_ADDRESS", "0.0.0.0:8080");
-        let bonus_service_address = config_default("BONUS_SERVICE_ADDRESS", "http://127.0.0.1:8050");
-        let flight_service_address = config_default("FLIGHT_SERVICE_ADDRESS", "http://127.0.0.1:8060");
-        let ticket_service_address = config_default("TICKET_SERVICE_ADDRESS", "http://127.0.0.1:8070");
+        let listen_port = config_default("GATEWAY_SERVICE__LISTEN_PORT", "8080");
+        let bonus_service_address = config_default("BONUS_SERVICE_ADDRESS", "http://localhost:8050");
+        let flight_service_address = config_default("FLIGHT_SERVICE_ADDRESS", "http://localhost:8060");
+        let ticket_service_address = config_default("TICKET_SERVICE_ADDRESS", "http://localhost:8070");
+        let rmq_address = config_default("RABBIT_MQ_ADDRESS", "amqp://rmq:rmq@localhost:5672/%2f");
 
-        let jwt_secret = config("TOKEN_RSOI_SECRET")?;
-        let jwt_expires_in = config("TOKEN_RSOI_EXPIRED_IN")?;
-        let jwt_max_age = config("TOKEN_RSOI_MAX_AGE")?;
-
-        let okta_oauth_client_id = config("OKTA_OAUTH_CLIENT_ID")?;
-        let okta_oauth_client_secret = config("OKTA_OAUTH_CLIENT_SECRET")?;
-        let okta_oauth_redirect_url = config("OKTA_OAUTH_REDIRECT_URL")?;
-        let okta_oauth_domain = config("OKTA_OAUTH_DOMAIN")?;
-        let okta_oauth_key = config("OKTA_OAUTH_KEY")?;
+        let jwt_secret = config("IDENTITY_SECRET_KEY")?;
 
         let config = Config {
-            listen_address,
+            listen_port,
             bonus_service_address,
             flight_service_address,
             ticket_service_address,
+            rmq_address,
+
             jwt_secret,
-            jwt_expires_in,
-            jwt_max_age: jwt_max_age.parse::<i64>().unwrap(),
-            okta_oauth_client_id,
-            okta_oauth_client_secret,
-            okta_oauth_redirect_url,
-            okta_oauth_domain,
-            okta_oauth_key,
         };
 
         Ok(config)

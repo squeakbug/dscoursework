@@ -1,18 +1,26 @@
-use actix::sync::SyncArbiter;
-use actix::Addr;
-use actix_web::middleware::Logger;
-use actix_web::App;
-use actix_web::*;
+use actix::{
+    sync::SyncArbiter,
+    Addr,
+};
+use actix_web::{
+    middleware::Logger,
+    App, web, HttpServer, HttpResponse,
+};
 use diesel::{prelude::*, r2d2::ConnectionManager};
-use log::info;
 use r2d2::Pool;
+use tracing::info;
 
-use crate::app::api::flight_controller;
-use crate::app::api::state::AppState;
-use crate::app::repository::database_executor::DatabaseExecutor;
-use crate::app::repository::flight_repository::*;
-use crate::app::service::flight_service_impl::FlightServiceImpl;
-use crate::config::ConfigError;
+use crate::{
+    app::{
+        api::{flight_controller, state::AppState},
+        repository::{
+            database_executor::DatabaseExecutor,
+            flight_repository::*,
+        },
+        service::flight_service_impl::FlightServiceImpl,
+    },
+    config::ConfigError,
+};
 
 pub mod app;
 pub mod config;
@@ -36,10 +44,7 @@ fn start_db_executor(cfg: &config::Config) -> Result<Addr<DatabaseExecutor>, Con
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    if std::env::var_os("RUST_LOG").is_none() {
-        std::env::set_var("RUST_LOG", "RUST_LOG=info");
-    }
-    env_logger::init();
+    tracing_subscriber::fmt::init();
 
     let cfg = config::Config::init().expect("Bad read config");
 

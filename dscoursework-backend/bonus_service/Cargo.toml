@@ -6,6 +6,8 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
+shared = { path = "../shared" }
+
 actix.workspace = true
 actix-cors.workspace = true
 actix-files.workspace = true

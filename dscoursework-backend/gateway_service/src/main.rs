@@ -1,33 +1,38 @@
-use std::collections::HashMap;
-use std::io::{Error, ErrorKind};
-use std::sync::Arc;
-use std::time::Duration;
+use std::{
+    time::Duration,
+    io::{ErrorKind, Error},
+};
 
-use actix_web::middleware::Logger;
-use actix_web::web;
-use actix_web::App;
-use actix_web::HttpResponse;
-use actix_web::HttpServer;
-use endpoint::retryer_middleware::init_rmq_listen;
-use futures::lock::Mutex;
-use failsafe::backoff::Exponential;
-use failsafe::failure_policy::ConsecutiveFailures;
-use failsafe::StateMachine;
-use failsafe::{backoff, failure_policy, Config};
-use log::info;
+use actix_web::{
+    web, App,
+    HttpResponse, HttpServer,
+    middleware::Logger,
+};
+use failsafe::{
+    backoff::{self, Exponential},
+    failure_policy::ConsecutiveFailures,
+    StateMachine, failure_policy, Config
+};
+use tracing::info;
+use tracing_subscriber;
 use reqwest::Client;
 
 use lapin::ConnectionProperties;
 use deadpool_lapin::{Manager, Pool};
 use service::service_error;
 
-use crate::endpoint::auth_controller::*;
-use crate::endpoint::gateway_controller::*;
-use crate::service::gateway_service_impl::GatewayServiceImpl;
-use crate::state::AppState;
+use shared::auth::JwtValidator;
+use crate::{
+    api::{
+        gateway_controller::*,
+        retryer_middleware::init_rmq_listen,
+    },
+    service::gateway_service_impl::GatewayServiceImpl,
+    state::AppState,
+};
 
+mod api;
 mod config;
-mod endpoint;
 mod models;
 mod service;
 mod state;
@@ -39,9 +44,7 @@ fn service_config(cfg: &mut web::ServiceConfig) {
         .service(ticket_get)
         .service(ticket_delete)
         .service(get_user_bonuses)
-        .service(bonuses_status)
-        .service(oauth_login)
-        .service(oauth_callback);
+        .service(bonuses_status);
 }
 
 fn circuit_breaker() -> StateMachine<ConsecutiveFailures<Exponential>, ()> {
@@ -63,10 +66,7 @@ async fn rmq_listen(pool: Pool) -> service_error::Result<()> {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    if std::env::var_os("RUST_LOG").is_none() {
-        std::env::set_var("RUST_LOG", "RUST_LOG=info");
-    }
-    env_logger::init();
+    tracing_subscriber::fmt::init();
 
     let config = config::Config::init().expect("Bad read config");
 
@@ -74,15 +74,14 @@ async fn main() -> std::io::Result<()> {
 
     info!("Initialising HTTP server ...");
 
-    let listen_address = config.listen_address.clone();
-    info!("listen_address = {}", &listen_address);
+    info!("listen_port = {}", &config.listen_port);
     info!("bonus_address = {}", &config.bonus_service_address);
     info!("flight_address = {}", &config.flight_service_address);
     info!("ticket_address = {}", &config.ticket_service_address);
+    info!("rmq_address = {}", &config.rmq_address);
 
-    let mq_host = "amqp://rmq:rmq@rabbitmq:5672/%2f";
-    let tx_manager = Manager::new(mq_host, ConnectionProperties::default());
-    let rx_manager = Manager::new(mq_host, ConnectionProperties::default());
+    let tx_manager = Manager::new(&config.rmq_address, ConnectionProperties::default());
+    let rx_manager = Manager::new(&config.rmq_address, ConnectionProperties::default());
     let tx_pool: Pool = deadpool::managed::Pool::builder(tx_manager)
         .max_size(10)
         .build()
@@ -92,11 +91,10 @@ async fn main() -> std::io::Result<()> {
         .build()
         .expect("cannot create pool");
 
-    info!("mq_host = {}", mq_host);
-
-    let token_storage = state::HashMapSyncContainer(Arc::new(Mutex::new(HashMap::new())));
-
+    let jwt_secret = config.jwt_secret.clone();
+    let listen_port = config.listen_port.parse::<u16>().expect("Invalid listen port");
     let http_server = HttpServer::new(move || {
+        let jwt_validator = JwtValidator::new(&jwt_secret);
         let state = AppState {
             gateway_service: Box::new(GatewayServiceImpl {
                 flight_base_path: config.flight_service_address.clone(),
@@ -105,19 +103,20 @@ async fn main() -> std::io::Result<()> {
                 client: Client::new(),
                 circuit_breaker: circuit_breaker(),
             }),
-            user_tokens: token_storage.clone(),
             config: config.clone(),
             mq_pool: tx_pool.clone(),
+            jwt_validator,
         };
 
         App::new()
             .app_data(web::Data::new(state))
-            .wrap(Logger::default())
+            //.wrap_fn(validate_jwt)
             .route("/manage/health", web::get().to(HttpResponse::Ok))
             .service(web::scope("/api/v1").configure(service_config))
+            .wrap(Logger::default())
     })
-    .bind(&listen_address)
-    .unwrap_or_else(|_| panic!("Could not bind on '{}'", &listen_address))
+    .bind(("0.0.0.0", listen_port))
+    .unwrap_or_else(|_| panic!("Could not bind on '{}'", listen_port))
     .run();
 
     let _ = http_server.await;

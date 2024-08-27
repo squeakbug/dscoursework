@@ -4,20 +4,23 @@ use actix_web_validator::Path;
 use serde::Deserialize;
 use validator::Validate;
 
-use crate::app::api::auth_token::AuthenticationGuard;
-use crate::app::api::error_controller::*;
-use crate::app::api::state::AppState;
-use crate::app::models;
+use shared::auth::JwtAuthGuard;
+use crate::app::{
+    api::{
+        error::*,
+        state::AppState,
+    },
+    models,
+};
 
 #[get("/privileges")]
 pub async fn list_privileges(
     state: Data<AppState>,
-    auth_guard: AuthenticationGuard,
+    auth_guard: JwtAuthGuard,
 ) -> Result<impl Responder, ErrorResponse> {
-    let username = auth_guard.nickname;
     state
         .privilege_service
-        .list_privileges(Some(username))
+        .list_privileges(Some(auth_guard.claims.sub))
         .await
         .map_err(|err| {
             let repo = &state.statistics_repository;
@@ -30,7 +33,7 @@ pub async fn list_privileges(
 #[post("/bonuses")]
 pub async fn create_bonus(
     state: Data<AppState>,
-    _: AuthenticationGuard,
+    _: JwtAuthGuard,
     bonus: web::Json<models::PrivilegeRequest>,
 ) -> Result<impl Responder, ErrorResponse> {
     state
@@ -50,14 +53,12 @@ pub struct DeleteBonusPath {
 #[delete("/bonuses/{ticketUid}")]
 pub async fn delete_bonus(
     state: Data<AppState>,
-    auth_guard: AuthenticationGuard,
+    auth_guard: JwtAuthGuard,
     path: Path<DeleteBonusPath>,
 ) -> Result<impl Responder, ErrorResponse> {
-    let ticket_uid = path.ticket_uid;
-    let username = auth_guard.nickname;
     state
         .privilege_service
-        .delete_bonus(username, ticket_uid)
+        .delete_bonus(auth_guard.claims.sub, path.ticket_uid)
         .await
         .map_err(ErrorResponse::map_io_error)
         .map(|privilege| HttpResponse::Ok().json(privilege))
@@ -74,13 +75,12 @@ pub struct PrivilegeHistoryQuery {
 #[get("/privilege_history")]
 pub async fn list_privilege_history(
     state: Data<AppState>,
-    auth_guard: AuthenticationGuard,
+    auth_guard: JwtAuthGuard,
     query: web::Query<PrivilegeHistoryQuery>,
 ) -> Result<impl Responder, ErrorResponse> {
-    let username = auth_guard.nickname;
     state
         .privilege_service
-        .get_privilege_history(Some(username), query.ticket_uid)
+        .get_privilege_history(Some(auth_guard.claims.sub), query.ticket_uid)
         .await
         .map_err(ErrorResponse::map_io_error)
         .map(|privilege| HttpResponse::Ok().json(privilege))

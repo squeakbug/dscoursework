@@ -49,8 +49,8 @@ async fn main() -> std::io::Result<()> {
 
     info!("Server is starting. Hold on tight while we're getting ready.");
 
-    let listen_address = cfg.listen_address.clone();
-    info!("listen_address = {}", &listen_address);
+    let listen_port = cfg.listen_port.parse::<u16>().expect("Bad parse listen port");
+    info!("listen_port = {}", &listen_port);
 
     let db_addr = start_db_executor(&cfg).unwrap();
     let ticket_repository = TicketRepositoryImpl { db_addr };
@@ -70,8 +70,8 @@ async fn main() -> std::io::Result<()> {
             .route("/manage/health", web::get().to(HttpResponse::Ok))
             .service(web::scope("/api/v1").configure(service_config))
     })
-    .bind(&listen_address)
-    .unwrap_or_else(|_| panic!("Could not bind on '{}'", listen_address))
+    .bind(("0.0.0.0", listen_port))
+    .unwrap_or_else(|_| panic!("Could not bind on '{}'", listen_port))
     .run()
     .await
 }

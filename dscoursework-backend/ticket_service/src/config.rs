@@ -3,13 +3,8 @@ use std::env;
 
 #[derive(Debug, Clone)]
 pub struct Config {
-    pub listen_address: String,
+    pub listen_port: String,
     pub database_url: String,
-
-    pub okta_oauth_client_id: String,
-    pub okta_oauth_client_secret: String,
-    pub okta_oauth_domain: String,
-    pub okta_oauth_key: String,
 }
 
 #[derive(Debug)]
@@ -40,21 +35,12 @@ fn config_default(name: &str, default: &str) -> String {
 
 impl Config {
     pub fn init() -> Result<Config, ConfigError> {
-        let listen_address = config_default("LISTEN_ADDRESS", "0.0.0.0:8080");
-        let database_url = config("DATABASE_URL")?;
-
-        let okta_oauth_client_id = config("OKTA_OAUTH_CLIENT_ID")?;
-        let okta_oauth_client_secret = config("OKTA_OAUTH_CLIENT_SECRET")?;
-        let okta_oauth_domain = config("OKTA_OAUTH_DOMAIN")?;
-        let okta_oauth_key = config("OKTA_OAUTH_KEY")?;
+        let listen_port = config_default("TICKET_SERVICE__LISTEN_PORT", "8080");
+        let database_url = config("TICKET_SERVICE__DATABASE_URL")?;
 
         let config = Config {
-            listen_address,
+            listen_port,
             database_url,
-            okta_oauth_client_id,
-            okta_oauth_client_secret,
-            okta_oauth_domain,
-            okta_oauth_key,
         };
 
         Ok(config)

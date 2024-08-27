@@ -6,10 +6,14 @@ use serde::Deserialize;
 use serde_derive::Serialize;
 use validator::Validate;
 
-use crate::app::api::auth_token::AuthenticationGuard;
-use crate::app::api::error_controller::*;
-use crate::app::api::state::AppState;
-use crate::app::dto_models;
+use shared::auth::JwtAuthGuard;
+use crate::app::{
+    api::{
+        error::*,
+        state::AppState,
+    },
+    dto_models,
+};
 
 #[derive(Serialize, Deserialize)]
 pub struct ListTicketsQuery {
@@ -17,11 +21,14 @@ pub struct ListTicketsQuery {
 }
 
 #[get("/tickets")]
-pub async fn list(state: Data<AppState>, auth_guard: AuthenticationGuard, query: web::Query<ListTicketsQuery>) -> Result<impl Responder, ErrorResponse> {
-    let username = auth_guard.nickname;
+pub async fn list(
+    state: Data<AppState>, 
+    auth_guard: JwtAuthGuard, 
+    query: web::Query<ListTicketsQuery>
+) -> Result<impl Responder, ErrorResponse> {
     state
         .ticket_service
-        .get_tickets(Some(username.clone()), query.flight_number.clone())
+        .get_tickets(Some(auth_guard.claims.sub), query.flight_number.clone())
         .await
         .map_err(ErrorResponse::map_io_error)
         .map(|tickets| HttpResponse::Ok().json(tickets))
@@ -30,7 +37,7 @@ pub async fn list(state: Data<AppState>, auth_guard: AuthenticationGuard, query:
 #[post("/tickets")]
 pub async fn create(
     state: Data<AppState>,
-    _: AuthenticationGuard,
+    _auth_guard: JwtAuthGuard,
     ticket: web::Json<dto_models::TicketCreateRequest>
 ) -> Result<impl Responder, ErrorResponse> {
     state
@@ -42,7 +49,11 @@ pub async fn create(
 }
 
 #[get("/tickets/{ticketUid}")]
-pub async fn get_id(state: Data<AppState>, _: AuthenticationGuard, path: Path<DeleteRequest>) -> Result<impl Responder, ErrorResponse> {
+pub async fn get_id(
+    state: Data<AppState>, 
+    _auth_guard: JwtAuthGuard, 
+    path: Path<DeleteRequest>
+) -> Result<impl Responder, ErrorResponse> {
     let ticket_uid = path.ticket_uid;
     state
         .ticket_service
@@ -59,7 +70,11 @@ pub struct DeleteRequest {
 }
 
 #[delete("/tickets/{ticketUid}")]
-pub async fn delete(state: Data<AppState>, _: AuthenticationGuard, path: Path<DeleteRequest>) -> Result<impl Responder, ErrorResponse> {
+pub async fn delete(
+    state: Data<AppState>, 
+    _auth_guard: JwtAuthGuard, 
+    path: Path<DeleteRequest>
+) -> Result<impl Responder, ErrorResponse> {
     let ticket_uid = path.ticket_uid;
     state
         .ticket_service
@@ -72,7 +87,7 @@ pub async fn delete(state: Data<AppState>, _: AuthenticationGuard, path: Path<De
 #[patch("/tickets/{ticketUid}")]
 pub async fn patch_id(
     state: Data<AppState>,
-    _: AuthenticationGuard,
+    _auth_guard: JwtAuthGuard,
     path: Path<DeleteRequest>,
     ticket: web::Json<dto_models::TicketRequest>,
 ) -> Result<impl Responder, ErrorResponse> {

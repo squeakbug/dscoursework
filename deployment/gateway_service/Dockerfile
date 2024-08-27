@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.3
-FROM rust:1.72-bullseye as build
+FROM rust:1.80-bullseye as build
 
 WORKDIR /root
 
@@ -8,12 +8,12 @@ RUN apt-get update && apt-get install libpq5 -y
 RUN --mount=type=cache,target=/usr/local/cargo/registry \
     cargo install cargo-strip
 
-COPY . .
+COPY ../../dscoursework-backend .
 
 RUN --mount=type=cache,target=/usr/local/cargo/registry --mount=type=cache,target=/root/target \
-    cargo build --release && \
+    cargo build --package gateway-service --release && \
     cargo strip && \
-    mv /root/target/release/flight-service /root
+    mv /root/target/release/gateway-service /root
 
 FROM gcr.io/distroless/cc-debian11
 
@@ -39,11 +39,8 @@ COPY --from=build /usr/lib/${ARCH}-linux-gnu/libffi.so* /usr/lib/${ARCH}-linux-g
 COPY --from=build /lib/${ARCH}-linux-gnu/libcom_err.so* /lib/${ARCH}-linux-gnu/
 COPY --from=build /lib/${ARCH}-linux-gnu/libkeyutils.so* /lib/${ARCH}-linux-gnu/
 
-COPY --from=build /root/flight-service /
-COPY --from=build /root/.env /.env
+COPY --from=build /root/gateway-service /
 
 WORKDIR /
 ENV RUST_LOG=info
-CMD ["./flight-service"]
-
-EXPOSE 8060
+CMD ["./gateway-service"]

@@ -1,9 +1,5 @@
 pub mod balance_history;
 pub use self::balance_history::BalanceHistory;
-pub mod error_description;
-pub use self::error_description::ErrorDescription;
-pub mod error_response;
-pub use self::error_response::ErrorResponse;
 pub mod flight_response;
 pub use self::flight_response::FlightResponse;
 pub mod privilege_full_info;
@@ -30,5 +26,3 @@ pub mod ticket_request;
 pub use self::ticket_request::TicketRequest;
 pub mod user_info_response;
 pub use self::user_info_response::UserInfoResponse;
-pub mod validation_error_response;
-pub use self::validation_error_response::ValidationErrorResponse;

@@ -1,4 +1,3 @@
-pub mod auth_token;
-pub mod error_controller;
+pub mod error;
 pub mod privilege_controller;
 pub mod state;

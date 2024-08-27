@@ -5,7 +5,8 @@ members = [
     "gateway_service",
     "image_service",
     "shared",
-    "ticket_service"]
+    "ticket_service"
+]
 resolver = "2"
 
 [workspace.package]

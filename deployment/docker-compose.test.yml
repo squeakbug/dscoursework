@@ -1,69 +1,37 @@
-version: "3"
-services:
-  postgres:
-    image: library/postgres:13
-    container_name: postgres
-    restart: on-failure
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "postgres"
-      POSTGRES_DB: postgres
-    volumes:
-      - db-data:/var/lib/postgresql/data
-      - ./init_db:/docker-entrypoint-initdb.d/
-    ports:
-      - "5432:5432"
-    networks:
-      - services-network
-    healthcheck:
-      test:
-        - "CMD-SHELL"
-        - "pg_isready -d $$POSTGRES_DB -U $$POSTGRES_USER"
-      interval: 5s
-      timeout: 5s
-      retries: 5
+---
 
+services:
   gateway-service:
-    build: ./gateway_service
-    image: squeakbug73/gateway-service:0.1
+    build: 
+      context: ../
+      dockerfile: ./deployment/gateway_service/Dockerfile
+    image: ${DOCKER_REGISTRY}/squeakbug73/gateway-service:0.1
     restart: unless-stopped
     container_name: gateway-service
     environment:
-      - DB_HOST=postgres
-      - LISTEN_ADDRESS=gateway-service:8080
-      - BONUS_SERVICE_ADDRESS=http://bonus-service:8050
-      - FLIGHT_SERVICE_ADDRESS=http://flight-service:8060
-      - TICKET_SERVICE_ADDRESS=http://ticket-service:8070
+      GATEWAY_SERVICE__LISTEN_PORT: ${GATEWAY_SERVICE__LISTEN_PORT}
+      RABBIT_MQ_ADDRESS: ${RABBIT_MQ_ADDRESS}
+      BONUS_SERVICE_ADDRESS: ${BONUS_SERVICE_ADDRESS}
+      FLIGHT_SERVICE_ADDRESS: ${FLIGHT_SERVICE_ADDRESS}
+      TICKET_SERVICE_ADDRESS: ${TICKET_SERVICE_ADDRESS}
+      IDENTITY_SECRET_KEY: ${IDENTITY_SECRET_KEY}
     ports:
-      - "8080:8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - services-network
-
-  rabbitmq:
-    image: rabbitmq:3.13.2-management
-    restart: always
-    ports:
-      - 15672:15672
-      - 5672:5672
-    environment:
-      - RABBITMQ_DEFAULT_USER=rmq
-      - RABBITMQ_DEFAULT_PASS=rmq
+      - "${GATEWAY_SERVICE__LISTEN_PORT}:8080"
     networks:
       - services-network
 
   ticket-service:
-    build: ./ticket_service
-    image: squeakbug73/ticket-service:0.1
+    build: 
+      context: ../
+      dockerfile: ./deployment/ticket_service/Dockerfile
+    image: ${DOCKER_REGISTRY}/squeakbug73/ticket-service:0.1
     restart: unless-stopped
     container_name: ticket-service
     environment:
-      - DB_HOST=postgres
-      - LISTEN_ADDRESS=ticket-service:8070
+      TICKET_SERVICE__LISTEN_PORT: ${TICKET_SERVICE__LISTEN_PORT}
+      TICKET_SERVICE__DATABASE_URL: ${TICKET_SERVICE__DATABASE_URL}
     ports:
-      - "8070:8070"
+      - "${TICKET_SERVICE__LISTEN_PORT}:8070"
     depends_on:
       postgres:
         condition: service_healthy
@@ -71,15 +39,17 @@ services:
       - services-network
 
   flight-service:
-    build: ./flight_service
-    image: squeakbug73/flight-service:0.1
+    build: 
+      context: ../
+      dockerfile: ./deployment/flight_service/Dockerfile
+    image: ${DOCKER_REGISTRY}/squeakbug73/flight-service:0.1
     restart: unless-stopped
     container_name: flight-service
     environment:
-      - DB_HOST=postgres
-      - LISTEN_ADDRESS=flight-service:8060
+      FLIGHT_SERVICE__LISTEN_PORT: ${FLIGHT_SERVICE__LISTEN_PORT}
+      FLIGHT_SERVICE__DATABASE_URL: ${FLIGHT_SERVICE__DATABASE_URL}
     ports:
-      - "8060:8060"
+      - "${FLIGHT_SERVICE__LISTEN_PORT}:8060"
     depends_on:
       postgres:
         condition: service_healthy
@@ -87,15 +57,17 @@ services:
       - services-network
 
   bonus-service:
-    build: ./bonus_service
-    image: squeakbug73/bonus-service:0.1
+    build: 
+      context: ../
+      dockerfile: ./deployment/bonus_service/Dockerfile
+    image: ${DOCKER_REGISTRY}/squeakbug73/bonus-service:0.1
     restart: unless-stopped
     container_name: bonus-service
     environment:
-      - DB_HOST=postgres
-      - LISTEN_ADDRESS=bonus-service:8050
+      BONUS_SERVICE__LISTEN_PORT: ${BONUS_SERVICE__LISTEN_PORT}
+      BONUS_SERVICE__DATABASE_URL: ${BONUS_SERVICE__DATABASE_URL}
     ports:
-      - "8050:8050"
+      - "${BONUS_SERVICE__LISTEN_PORT}:8050"
     depends_on:
       postgres:
         condition: service_healthy
@@ -103,8 +75,10 @@ services:
       - services-network
 
   statistics-service:
-    build: statistics_service
-    image: squeakbug73/statistics-service:0.1
+    build: 
+      context: ../
+      dockerfile: ./deployment/statistics_service/Dockerfile
+    image: ${DOCKER_REGISTRY}/squeakbug73/statistics-service:0.1
     restart: unless-stopped
     ports:
       - "8030:8030"
@@ -122,26 +96,46 @@ services:
     networks:
       - services-network
 
-  identity-provider:
-    build: oidc_identity_provider
-    image: squeakbug73/identity-provider:0.1
-    restart: unless-stopped
-    ports:
-      - "8020:8020"
+  postgres:
+    image: ${DOCKER_REGISTRY}/library/postgres:16-alpine
+    container_name: postgres
+    restart: on-failure
     environment:
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PORT=5432
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=stat
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres-volume:/var/lib/postgresql/data
+      - ./init_db:/docker-entrypoint-initdb.d/
+    ports:
+      - "5432:5432"
+    networks:
+      - services-network
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "pg_isready -d $$POSTGRES_DB -U $$POSTGRES_USER"
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: ${DOCKER_REGISTRY}/rabbitmq:3.13.2-management
+    restart: always
+    ports:
+      - 15672:15672
+      - 5672:5672
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBIT_MQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBIT_MQ_DEFAULT_PASS}
     networks:
       - services-network
 
   kafdrop:
-    image: obsidiandynamics/kafdrop
+    image: ${DOCKER_REGISTRY}/obsidiandynamics/kafdrop
     restart: "no"
     ports:
-      - "9000:9000"
+      - "9000:9004"
     environment:
       KAFKA_BROKERCONNECT: "kafka:9093"
       JVM_OPTS: "-Xms32M -Xmx64M"
@@ -151,7 +145,7 @@ services:
       - services-network
 
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
+    image: ${DOCKER_REGISTRY}/confluentinc/cp-zookeeper:latest
     healthcheck:
       test: "[[ $$(echo srvr | nc zookeeper 2181 || exit 1) ]]"
       interval: 5s
@@ -167,7 +161,7 @@ services:
       - services-network
 
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: ${DOCKER_REGISTRY}/confluentinc/cp-kafka:latest
     hostname: kafka
     container_name: kafka
     healthcheck:
@@ -194,21 +188,96 @@ services:
       - services-network
 
   minio:
-    image: mirror.gcr.io/minio/minio
+    image: ${DOCKER_REGISTRY}/minio/minio
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "9000:9002"
+      - "9001:9003"
     environment:
       - MINIO_ROOT_USER=minio
       - MINIO_ROOT_PASSWORD=minio123
     volumes:
-      - minio-data:/data
+      - minio-volume:/data
     command: server --console-address ":9001" /data
+
+  redis:
+    image: ${DOCKER_REGISTRY}/library/redis:alpine
+    command: --save 60 1 --loglevel warning
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    volumes:
+      - redis-volume:/data
+    networks:
+      - services-network
+
+  goauthentik-server:
+    image: ghcr.io/goauthentik/server:2024.6.2
+    container_name: dscoursework-authentik-server
+    restart: unless-stopped
+    command: server
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: postgres
+      AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER}
+      AUTHENTIK_POSTGRESQL__NAME: ${POSTGRES_DB}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD}
+      AUTHENTIK_SECRET_KEY: ${IDENTITY_SECRET_KEY}
+    volumes:
+      - ./media:/media
+      - ./custom-templates:/templates
+    ports:
+      - "9000:9000"
+      - "9443:9443"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - services-network
+
+  goauthentik-worker:
+    image: ghcr.io/goauthentik/server:2024.6.2
+    container_name: dscoursework-authentik-worker
+    restart: unless-stopped
+    command: worker
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: postgres
+      AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER}
+      AUTHENTIK_POSTGRESQL__NAME: ${POSTGRES_DB}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD}
+    user: root
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./media:/media
+      - ./certs:/certs
+      - ./custom-templates:/templates
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - services-network
+
+  whoami:
+    image: "traefik/whoami"
+    container_name: "simple-service"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
+      - "traefik.http.routers.whoami.entrypoints=web"
+    networks:
+      - services-network
 
 networks:
   services-network:
     driver: bridge
 
 volumes:
-  db-data: {}
-  minio-data: {}
+  postgres-volume: {}
+  minio-volume: {}
+  redis-volume: {}
+  kafka-volume: {}
+

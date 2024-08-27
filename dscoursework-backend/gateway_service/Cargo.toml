@@ -6,6 +6,7 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
+shared = { path = "../shared" }
 bonus_service_api = { path = "../bonus-service-api" }
 flight_service_api = { path = "../flight-service-api" }
 ticket_service_api = { path = "../ticket-service-api" }
@@ -37,6 +38,8 @@ deadpool-lapin.workspace = true
 lapin.workspace = true
 tokio-amqp.workspace = true
 tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
 uuid.workspace = true
 validator.workspace = true
 rdkafka.workspace = true
