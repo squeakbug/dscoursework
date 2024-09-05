@@ -1,10 +1,10 @@
 use actix_web::web::Data;
 use actix_web::{delete, get, post, web, HttpResponse, Responder, Result};
-use log::info;
+use tracing::info;
 use serde::Deserialize;
 use validator::Validate;
 
-use shared::auth::JwtAuthGuard;
+use crate::api::auth::JwtAuthGuard;
 use crate::{
     api::error::ErrorResponse,
     models,

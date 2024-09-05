@@ -21,9 +21,9 @@ use lapin::ConnectionProperties;
 use deadpool_lapin::{Manager, Pool};
 use service::service_error;
 
-use shared::auth::JwtValidator;
 use crate::{
     api::{
+        auth::JwtValidator,
         gateway_controller::*,
         retryer_middleware::init_rmq_listen,
     },
@@ -72,8 +72,6 @@ async fn main() -> std::io::Result<()> {
 
     info!("Server is starting. Hold on tight while we're getting ready.");
 
-    info!("Initialising HTTP server ...");
-
     info!("listen_port = {}", &config.listen_port);
     info!("bonus_address = {}", &config.bonus_service_address);
     info!("flight_address = {}", &config.flight_service_address);
@@ -109,11 +107,10 @@ async fn main() -> std::io::Result<()> {
         };
 
         App::new()
-            .app_data(web::Data::new(state))
-            //.wrap_fn(validate_jwt)
             .route("/manage/health", web::get().to(HttpResponse::Ok))
             .service(web::scope("/api/v1").configure(service_config))
             .wrap(Logger::default())
+            .app_data(web::Data::new(state))
     })
     .bind(("0.0.0.0", listen_port))
     .unwrap_or_else(|_| panic!("Could not bind on '{}'", listen_port))

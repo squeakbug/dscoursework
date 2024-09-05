@@ -1,22 +1,35 @@
-use actix::sync::SyncArbiter;
-use actix::Addr;
-use actix_web::middleware::Logger;
-use actix_web::App;
-use actix_web::*;
+use actix::{
+    sync::SyncArbiter,
+    Addr,
+};
+use actix_web::{
+    middleware::Logger,
+    App, web, HttpServer, HttpResponse,
+};
 use diesel::{prelude::*, r2d2::ConnectionManager};
-use log::info;
 use r2d2::Pool;
+use tracing::info;
 
-use crate::app::service::ticket_service_impl::TicketServiceImpl;
-use crate::app::api::state::AppState;
-use crate::app::api::ticket_controller;
-use crate::app::repository::database_executor::DatabaseExecutor;
-use crate::app::repository::ticket_repository::*;
-use crate::config::ConfigError;
+use crate::{
+    state::AppState,
+    config::ConfigError,
+    app::{
+        service::ticket_service_impl::TicketServiceImpl,
+        api::{
+            ticket_controller,
+            auth::JwtValidator,
+        },
+        repository::{
+            database_executor::DatabaseExecutor,
+            ticket_repository::*,
+        },
+    },
+};
 
 pub mod app;
 pub mod config;
 pub mod schema;
+pub mod state;
 
 fn service_config(cfg: &mut web::ServiceConfig) {
     cfg.service(ticket_controller::list)
@@ -40,35 +53,36 @@ fn start_db_executor(cfg: &config::Config) -> Result<Addr<DatabaseExecutor>, Con
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    if std::env::var_os("RUST_LOG").is_none() {
-        std::env::set_var("RUST_LOG", "RUST_LOG=info");
-    }
-    env_logger::init();
+    tracing_subscriber::fmt::init();
 
-    let cfg = config::Config::init().expect("Bad read config");
+    let config = config::Config::init().expect("Bad read config");
 
     info!("Server is starting. Hold on tight while we're getting ready.");
 
-    let listen_port = cfg.listen_port.parse::<u16>().expect("Bad parse listen port");
+    let listen_port = config.listen_port.clone();
     info!("listen_port = {}", &listen_port);
 
-    let db_addr = start_db_executor(&cfg).unwrap();
+    let db_addr = start_db_executor(&config).unwrap();
     let ticket_repository = TicketRepositoryImpl { db_addr };
     let ticket_service = TicketServiceImpl {
         ticket_repository: Box::new(ticket_repository),
     };
 
+    let jwt_secret = config.jwt_secret.clone();
+    let listen_port = config.listen_port.parse::<u16>().expect("Invalid listen port");
     HttpServer::new(move || {
+        let jwt_validator = JwtValidator::new(&jwt_secret);
         let state = AppState {
             ticket_service: Box::new(ticket_service.clone()),
-            config: cfg.clone(),
+            config: config.clone(),
+            jwt_validator,
         };
 
         App::new()
-            .app_data(web::Data::new(state))
-            .wrap(Logger::default())
             .route("/manage/health", web::get().to(HttpResponse::Ok))
             .service(web::scope("/api/v1").configure(service_config))
+            .wrap(Logger::default())
+            .app_data(web::Data::new(state))
     })
     .bind(("0.0.0.0", listen_port))
     .unwrap_or_else(|_| panic!("Could not bind on '{}'", listen_port))

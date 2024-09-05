@@ -2,8 +2,8 @@ use std::boxed::Box;
 
 use deadpool_lapin::Pool;
 
-use shared::auth::JwtValidator;
 use crate::{
+    api::auth::JwtValidator,
     config::Config, 
     service::gateway_service::GatewayService
 };

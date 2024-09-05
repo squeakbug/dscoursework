@@ -12,7 +12,10 @@ use tracing::info;
 
 use crate::{
     app::{
-        api::{flight_controller, state::AppState},
+        api::{
+            flight_controller,
+            auth::JwtValidator,
+        },
         repository::{
             database_executor::DatabaseExecutor,
             flight_repository::*,
@@ -20,11 +23,13 @@ use crate::{
         service::flight_service_impl::FlightServiceImpl,
     },
     config::ConfigError,
+    state::AppState,
 };
 
 pub mod app;
 pub mod config;
 pub mod schema;
+pub mod state;
 
 fn service_config(cfg: &mut web::ServiceConfig) {
     cfg.service(flight_controller::list).service(flight_controller::get_id);
@@ -46,33 +51,37 @@ fn start_db_executor(cfg: &config::Config) -> Result<Addr<DatabaseExecutor>, Con
 async fn main() -> std::io::Result<()> {
     tracing_subscriber::fmt::init();
 
-    let cfg = config::Config::init().expect("Bad read config");
+    let config = config::Config::init().expect("Bad read config");
 
     info!("Server is starting. Hold on tight while we're getting ready.");
 
-    let listen_address = cfg.listen_address.clone();
-    info!("listen_address = {}", &listen_address);
+    let listen_port = config.listen_port.clone();
+    info!("listen_port = {}", &listen_port);
 
-    let db_addr = start_db_executor(&cfg).unwrap();
+    let db_addr = start_db_executor(&config).unwrap();
     let flight_repository = FlightRepositoryImpl { db_addr };
     let person_service = FlightServiceImpl {
         flight_repository: Box::new(flight_repository),
     };
 
+    let jwt_secret = config.jwt_secret.clone();
+    let listen_port = config.listen_port.parse::<u16>().expect("Invalid listen port");
     HttpServer::new(move || {
+        let jwt_validator = JwtValidator::new(&jwt_secret);
         let state = AppState {
             person_service: Box::new(person_service.clone()),
-            config: cfg.clone(),
+            config: config.clone(),
+            jwt_validator,
         };
 
         App::new()
-            .app_data(web::Data::new(state))
-            .wrap(Logger::default())
             .route("/manage/health", web::get().to(HttpResponse::Ok))
             .service(web::scope("/api/v1").configure(service_config))
+            .wrap(Logger::default())
+            .app_data(web::Data::new(state))
     })
-    .bind(&listen_address)
-    .unwrap_or_else(|_| panic!("Could not bind on '{}'", &listen_address))
+    .bind(("0.0.0.0", listen_port))
+    .unwrap_or_else(|_| panic!("Could not bind on '{}'", listen_port))
     .run()
     .await
 }

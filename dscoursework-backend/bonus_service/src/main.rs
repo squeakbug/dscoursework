@@ -1,27 +1,44 @@
 use std::sync::Arc;
 
-use actix::sync::SyncArbiter;
-use actix::Addr;
-use actix_web::middleware::Logger;
-use actix_web::App;
-use actix_web::*;
-use app::error::ConfigError;
-use app::service::privilege_service_impl::PrivilegeServiceImpl;
+use actix::{
+    sync::SyncArbiter,
+    Addr,
+};
+use actix_web::{
+    middleware::Logger,
+    App, web, HttpServer, HttpResponse,
+};
+use app::{
+    error::ConfigError,
+    service::privilege_service_impl::PrivilegeServiceImpl,
+};
 use diesel::{prelude::*, r2d2::ConnectionManager};
-use log::info;
-use rdkafka::config::ClientConfig;
-use rdkafka::producer::FutureProducer;
+use tracing::info;
+use rdkafka::{
+    config::ClientConfig,
+    producer::FutureProducer
+};
 use r2d2::Pool;
 
-use crate::app::api::privilege_controller;
-use crate::app::api::state::AppState;
-use crate::app::repository::database_executor::DatabaseExecutor;
-use crate::app::repository::privilege_repository::*;
-use crate::app::repository::statistics_repository::StatisticsRepository;
+use crate::{
+    state::AppState,
+    app::{
+        api::{
+            privilege_controller,
+            auth::JwtValidator,
+        },
+        repository::{
+            database_executor::DatabaseExecutor,
+            privilege_repository::*,
+            statistics_repository::StatisticsRepository,
+        },
+    },
+};
 
 pub mod app;
 pub mod config;
 pub mod schema;
+pub mod state;
 
 fn service_config(cfg: &mut web::ServiceConfig) {
     cfg.service(privilege_controller::list_privileges)
@@ -44,45 +61,46 @@ fn start_db_executor(cfg: &config::Config) -> Result<Addr<DatabaseExecutor>, Con
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    if std::env::var_os("RUST_LOG").is_none() {
-        std::env::set_var("RUST_LOG", "RUST_LOG=info");
-    }
-    env_logger::init();
+    tracing_subscriber::fmt::init();
 
-    let cfg = config::Config::init().expect("Bad read config");
+    let config = config::Config::init().expect("Bad read config");
 
     info!("Server is starting. Hold on tight while we're getting ready.");
 
-    let listen_address = cfg.listen_address.clone();
-    info!("listen_address = {}", &listen_address);
+    let listen_port = config.listen_port.clone();
+    info!("listen_port = {}", &listen_port);
 
-    let db_addr = start_db_executor(&cfg).unwrap();
+    let db_addr = start_db_executor(&config).unwrap();
     let privilege_repository = PrivilegeRepositoryImpl { db_addr };
     let privilege_service = PrivilegeServiceImpl {
         privilege_repository: Box::new(privilege_repository),
     };
 
     let producer: FutureProducer = ClientConfig::new()
-        .set("bootstrap.servers", "kafka1:9092,kafka2:9092")
+        .set("bootstrap.servers", &config.kafka_bootstrap_servers)
         .create()
         .expect("Producer creation failed");
     let statistics_repository = Arc::new(StatisticsRepository::new(producer));
 
+    let jwt_secret = config.jwt_secret.clone();
+    let listen_port = config.listen_port.parse::<u16>().expect("Invalid listen port");
     HttpServer::new(move || {
+        let jwt_validator = JwtValidator::new(&jwt_secret);
         let state = AppState {
             privilege_service: Box::new(privilege_service.clone()),
             statistics_repository: statistics_repository.clone(),
-            config: cfg.clone(),
+            config: config.clone(),
+            jwt_validator,
         };
 
         App::new()
-            .app_data(web::Data::new(state))
-            .wrap(Logger::default())
             .route("/manage/health", web::get().to(HttpResponse::Ok))
             .service(web::scope("/api/v1").configure(service_config))
+            .wrap(Logger::default())
+            .app_data(web::Data::new(state))
     })
-    .bind(&listen_address)
-    .unwrap_or_else(|_| panic!("Could not bind on '{}'", &listen_address))
+    .bind(("0.0.0.0", listen_port))
+    .unwrap_or_else(|_| panic!("Could not bind on '{}'", listen_port))
     .run()
     .await
 }

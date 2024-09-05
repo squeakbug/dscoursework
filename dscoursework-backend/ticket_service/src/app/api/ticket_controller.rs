@@ -1,18 +1,22 @@
-use actix_web::http::StatusCode;
-use actix_web::web::Data;
-use actix_web::{delete, get, patch, post, web, HttpResponse, HttpResponseBuilder, Responder, Result};
+use actix_web::{
+    http::StatusCode,
+    web::Data,
+    delete, get, patch, post, web, HttpResponse, HttpResponseBuilder, Responder, Result,
+};
 use actix_web_validator::Path;
 use serde::Deserialize;
 use serde_derive::Serialize;
 use validator::Validate;
 
-use shared::auth::JwtAuthGuard;
-use crate::app::{
-    api::{
-        error::*,
-        state::AppState,
+use crate::{
+    state::AppState,
+    app::{
+        api::{
+            error::*,
+            auth::JwtAuthGuard,
+        },
+        dto_models,
     },
-    dto_models,
 };
 
 #[derive(Serialize, Deserialize)]

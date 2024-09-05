@@ -1,8 +1,11 @@
 use std::future::{ready, Ready};
 
+use actix_web::web;
 use actix_web::{Error, FromRequest, HttpRequest};
 use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use serde::{Deserialize, Serialize};
+
+use crate::state::AppState;
 
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -36,8 +39,8 @@ impl FromRequest for JwtAuthGuard {
 
     fn from_request(req: &HttpRequest, _payload: &mut actix_web::dev::Payload) -> Self::Future {
         let secret = req
-            .app_data::<JwtValidator>()
-            .map(|data| data.secret.clone())
+            .app_data::<web::Data<AppState>>()
+            .map(|data| data.jwt_validator.secret.clone())
             .unwrap_or_else(|| "".to_string());
 
         let token = req
@@ -49,27 +52,19 @@ impl FromRequest for JwtAuthGuard {
             } else {
                 token
             });
-
+        
         if let Some(token) = token {
             let decoding_key = DecodingKey::from_secret(secret.as_ref());
             let mut validation = Validation::new(Algorithm::HS256);
             validation.leeway = 60;
     
             let token_data = decode::<Claims>(token, &decoding_key, &validation);
-    
+
             if let Ok(token_data) = token_data {
-                let client_ip = req
-                    .connection_info()
-                    .peer_addr()
-                    .unwrap_or_default()
-                    .to_string();
-    
-                if token_data.claims.ip == client_ip {
-                    return ready(Ok(JwtAuthGuard {
-                        claims: token_data.claims,
-                        token: token.to_owned(),
-                    }));
-                }
+                return ready(Ok(JwtAuthGuard {
+                    claims: token_data.claims,
+                    token: token.to_owned(),
+                }));
             }
         }
 

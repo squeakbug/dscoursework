@@ -4,13 +4,15 @@ use actix_web_validator::Path;
 use serde::Deserialize;
 use validator::Validate;
 
-use shared::auth::JwtAuthGuard;
-use crate::app::{
-    api::{
-        error::*,
-        state::AppState,
+use crate::{
+    state::AppState,
+    app::{
+        api::{
+            error::*,
+            auth::JwtAuthGuard,
+        },
+        models,
     },
-    models,
 };
 
 #[get("/privileges")]

@@ -8,6 +8,7 @@ pub struct Config {
     pub ticket_service_address: String,
 
     pub rmq_address: String,
+    pub kafka_bootstrap_servers: String,
 
     pub jwt_secret: String,
 }
@@ -47,6 +48,7 @@ impl Config {
         let flight_service_address = config_default("FLIGHT_SERVICE_ADDRESS", "http://localhost:8060");
         let ticket_service_address = config_default("TICKET_SERVICE_ADDRESS", "http://localhost:8070");
         let rmq_address = config_default("RABBIT_MQ_ADDRESS", "amqp://rmq:rmq@localhost:5672/%2f");
+        let kafka_bootstrap_servers = config("KAFKA__BOOTSTRAP_SERVERS")?;
 
         let jwt_secret = config("IDENTITY_SECRET_KEY")?;
 
@@ -56,6 +58,7 @@ impl Config {
             flight_service_address,
             ticket_service_address,
             rmq_address,
+            kafka_bootstrap_servers,
 
             jwt_secret,
         };

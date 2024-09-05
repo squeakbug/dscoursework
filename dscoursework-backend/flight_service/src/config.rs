@@ -3,13 +3,10 @@ use std::fmt::{Debug, Display, Formatter};
 
 #[derive(Debug, Clone)]
 pub struct Config {
-    pub listen_address: String,
+    pub listen_port: String,
     pub database_url: String,
-
-    pub okta_oauth_client_id: String,
-    pub okta_oauth_client_secret: String,
-    pub okta_oauth_domain: String,
-    pub okta_oauth_key: String,
+    pub jwt_secret: String,
+    pub kafka_bootstrap_servers: String,
 }
 
 #[derive(Debug)]
@@ -42,21 +39,16 @@ fn config_default(name: &str, default: &str) -> String {
 
 impl Config {
     pub fn init() -> Result<Config, ConfigError> {
-        let listen_address = config("LISTEN_ADDRESS")?;
-        let database_url = config("DATABASE_URL")?;
-
-        let okta_oauth_client_id = config("OKTA_OAUTH_CLIENT_ID")?;
-        let okta_oauth_client_secret = config("OKTA_OAUTH_CLIENT_SECRET")?;
-        let okta_oauth_domain = config("OKTA_OAUTH_DOMAIN")?;
-        let okta_oauth_key = config("OKTA_OAUTH_KEY")?;
+        let listen_port = config("FLIGHT_SERVICE__LISTEN_PORT")?;
+        let database_url = config("FLIGHT_SERVICE__DATABASE_URL")?;
+        let jwt_secret = config("IDENTITY_SECRET_KEY")?;
+        let kafka_bootstrap_servers = config("KAFKA__BOOTSTRAP_SERVERS")?;
 
         let config = Config {
-            listen_address,
+            listen_port,
             database_url,
-            okta_oauth_client_id,
-            okta_oauth_client_secret,
-            okta_oauth_domain,
-            okta_oauth_key,
+            jwt_secret,
+            kafka_bootstrap_servers,
         };
 
         Ok(config)

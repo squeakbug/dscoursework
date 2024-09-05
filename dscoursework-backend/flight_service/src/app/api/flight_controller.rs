@@ -4,11 +4,11 @@ use actix_web_validator::Path;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use shared::auth::JwtAuthGuard;
+use crate::app::api::auth::JwtAuthGuard;
 
-use crate::app::api::{
-    error::*,
+use crate::{
     state::AppState,
+    app::api::error::*,
 };
 
 #[derive(Serialize, Deserialize, Validate)]
