@@ -1,6 +1,6 @@
 # dscoursework
 
-В дверь постучали n раз. "Византия победила" - подумал Штирлец
+В дверь постучали n раз. "Византия победила" - подумал Штирлиц
 
 ![GitHub Classroom Workflow](../../workflows/GitHub%20Classroom%20Workflow/badge.svg?branch=master)
 
