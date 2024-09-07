@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  # See: https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/
   name: {{ .Chart.Name }}
   namespace: rsoi
   labels:
@@ -10,10 +11,10 @@ metadata:
     app.kubernetes.io/part-of: micro-services
     app.kubernetes.io/managed-by: helm
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
-      app: bonus
+      app: {{ .Chart.Name }}
   template:
     metadata:
       labels:
@@ -25,19 +26,29 @@ spec:
         app.kubernetes.io/managed-by: helm
     spec:
       containers:
-      - name: bonus
-        image: squeakbug73/bonus-service:0.1
+      - name: {{ .Chart.Name }}
+        image: squeakbug73/ticket-service:0.1
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 8050
+        - containerPort: 8070
         env:
-        - name: DATABASE_URL
+        - name: KAFKA__BOOTSTRAP_SERVERS
           valueFrom:
             configMapKeyRef:
-              name: bonus-config
-              key: database-url
-        - name: LISTEN_ADDRESS
+              name: ticket-config
+              key: KAFKA__BOOTSTRAP_SERVERS
+        - name: IDENTITY_SECRET_KEY
           valueFrom:
             configMapKeyRef:
-              name: bonus-config
-              key: listen-address
+              name: ticket-config
+              key: IDENTITY_SECRET_KEY
+        - name: TICKET_SERVICE__DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: ticket-config
+              key: DATABASE_URL
+        - name: TICKET_SERVICE__LISTEN_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: ticket-config
+              key: LISTEN_PORT

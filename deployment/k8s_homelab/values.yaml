@@ -2,5 +2,9 @@ global:
   # containerRegistryAddr - Container registry address
   containerRegistryAddr:
     "docker.io"
+  # containerRegistryUser - Container registry user
   containerRegistryUser:
     "squeakbug73"
+  # homelabAddr - Homelab address
+  "homelabAddr":
+    "147.45.166.216"

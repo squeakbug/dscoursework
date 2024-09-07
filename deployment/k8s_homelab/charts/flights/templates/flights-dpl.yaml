@@ -10,7 +10,7 @@ metadata:
     app.kubernetes.io/part-of: micro-services
     app.kubernetes.io/managed-by: helm
 spec:
-  replicas: {{ .Values.replicas }}
+  replicas: 3
   selector:
     matchLabels:
       app: {{ .Chart.Name }}
@@ -31,13 +31,23 @@ spec:
           ports:
           - containerPort: 8060
           env:
-          - name: DATABASE_URL
+          - name: KAFKA__BOOTSTRAP_SERVERS
             valueFrom:
               configMapKeyRef:
                 name: flight-config
-                key: database-url
-          - name: LISTEN_ADDRESS
+                key: KAFKA__BOOTSTRAP_SERVERS
+          - name: IDENTITY_SECRET_KEY
             valueFrom:
               configMapKeyRef:
                 name: flight-config
-                key: listen-address
+                key: IDENTITY_SECRET_KEY
+          - name: FLIGHT_SERVICE__DATABASE_URL
+            valueFrom:
+              configMapKeyRef:
+                name: flight-config
+                key: DATABASE_URL
+          - name: FLIGHT_SERVICE__LISTEN_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: flight-config
+                key: LISTEN_PORT

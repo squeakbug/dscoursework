@@ -3,3 +3,12 @@ name: "dscoursework"
 description: "Здесь могло быть описание чарта"
 type: application
 version: 0.1.0
+dependencies:
+  - name: bonus
+    version: 1.0.0
+  - name: flights
+    version: 1.0.0
+  - name: gateway
+    version: 1.0.0
+  - name: ticket
+    version: 1.0.0

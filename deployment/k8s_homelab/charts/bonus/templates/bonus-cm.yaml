@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bonus-config
+  namespace: rsoi
+data:
+  DATABASE_URL:
+    "postgres://program:test@147.45.166.216/privileges"
+  LISTEN_PORT:
+    "8050"
+  IDENTITY_SECRET_KEY:
+    "my_secret_key"
+  KAFKA__BOOTSTRAP_SERVERS:
+    "147.45.166.216:9092"

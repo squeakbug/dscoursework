@@ -1,0 +1,15 @@
+dependencies:
+- name: bonus
+  repository: ""
+  version: 1.0.0
+- name: flights
+  repository: ""
+  version: 1.0.0
+- name: gateway
+  repository: ""
+  version: 1.0.0
+- name: ticket
+  repository: ""
+  version: 1.0.0
+digest: sha256:ccfca2b717f35a2d5e657e22ed2a7f1fcfbd9589fb32fc394ffab76ec94aa913
+generated: "2024-09-07T05:08:06.977200769+03:00"

@@ -31,23 +31,38 @@ spec:
           ports:
           - containerPort: 8080
           env:
-          - name: LISTEN_ADDRESS
+          - name: KAFKA__BOOTSTRAP_SERVERS
             valueFrom:
               configMapKeyRef:
                 name: gateway-config
-                key: listen-address
+                key: KAFKA__BOOTSTRAP_SERVERS
+          - name: GATEWAY_SERVICE__LISTEN_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: gateway-config
+                key: LISTEN_PORT
+          - name: RABBIT_MQ_ADDRESS
+            valueFrom:
+              configMapKeyRef:
+                name: gateway-config
+                key: RABBIT_MQ_ADDRESS
           - name: BONUS_SERVICE_ADDRESS
             valueFrom:
               configMapKeyRef:
                 name: gateway-config
-                key: bonus-service-address
+                key: BONUS_SERVICE_ADDRESS
           - name: FLIGHT_SERVICE_ADDRESS
             valueFrom:
               configMapKeyRef:
                 name: gateway-config
-                key: flight-service-address
+                key: FLIGHT_SERVICE_ADDRESS
           - name: TICKET_SERVICE_ADDRESS
             valueFrom:
               configMapKeyRef:
                 name: gateway-config
-                key: ticket-service-address
+                key: TICKET_SERVICE_ADDRESS
+          - name: IDENTITY_SECRET_KEY
+            valueFrom:
+              configMapKeyRef:
+                name: gateway-config
+                key: IDENTITY_SECRET_KEY
