@@ -34,9 +34,15 @@ pub async fn list(
         .ticket_service
         .get_tickets(Some(auth_guard.claims.sub), query.flight_number.clone())
         .await
-        .map_err(ErrorResponse::map_io_error)
+        .map_err(|err| {
+            let repo = &state.statistics_repository;
+            let _ = repo.create_error_message(&err);
+            ErrorResponse::map_io_error(err)
+        })
         .map(|tickets| HttpResponse::Ok().json(tickets))
 }
+
+use tracing::info;
 
 #[post("/tickets")]
 pub async fn create(
@@ -44,11 +50,16 @@ pub async fn create(
     _auth_guard: JwtAuthGuard,
     ticket: web::Json<dto_models::TicketCreateRequest>
 ) -> Result<impl Responder, ErrorResponse> {
+    info!("{:?}", ticket);
     state
         .ticket_service
         .create_ticket(&ticket)
         .await
-        .map_err(ErrorResponse::map_io_error)
+        .map_err(|err| {
+            let repo = &state.statistics_repository;
+            let _ = repo.create_error_message(&err);
+            ErrorResponse::map_io_error(err)
+        })
         .map(|new_id| HttpResponseBuilder::new(StatusCode::CREATED).json(new_id))
 }
 
@@ -63,7 +74,11 @@ pub async fn get_id(
         .ticket_service
         .get_ticket(ticket_uid)
         .await
-        .map_err(ErrorResponse::map_io_error)
+        .map_err(|err| {
+            let repo = &state.statistics_repository;
+            let _ = repo.create_error_message(&err);
+            ErrorResponse::map_io_error(err)
+        })
         .map(|ticket| HttpResponse::Ok().json(ticket))
 }
 
@@ -84,7 +99,11 @@ pub async fn delete(
         .ticket_service
         .delete_ticket(ticket_uid)
         .await
-        .map_err(ErrorResponse::map_io_error)
+        .map_err(|err| {
+            let repo = &state.statistics_repository;
+            let _ = repo.create_error_message(&err);
+            ErrorResponse::map_io_error(err)
+        })
         .map(|_| HttpResponseBuilder::new(StatusCode::NO_CONTENT).finish())
 }
 
@@ -100,6 +119,10 @@ pub async fn patch_id(
         .ticket_service
         .edit_ticket(ticket_uid, &ticket)
         .await
-        .map_err(ErrorResponse::map_io_error)
+        .map_err(|err| {
+            let repo = &state.statistics_repository;
+            let _ = repo.create_error_message(&err);
+            ErrorResponse::map_io_error(err)
+        })
         .map(|ticket| HttpResponse::Ok().json(ticket))
 }

@@ -42,7 +42,11 @@ pub async fn create_bonus(
         .privilege_service
         .create_bonus(&bonus)
         .await
-        .map_err(ErrorResponse::map_io_error)
+        .map_err(|err| {
+            let repo = &state.statistics_repository;
+            let _ = repo.create_error_message(err);
+            ErrorResponse::map_io_error(err)
+        })
         .map(|privileges| HttpResponse::Ok().json(privileges))
 }
 
@@ -62,7 +66,11 @@ pub async fn delete_bonus(
         .privilege_service
         .delete_bonus(auth_guard.claims.sub, path.ticket_uid)
         .await
-        .map_err(ErrorResponse::map_io_error)
+        .map_err(|err| {
+            let repo = &state.statistics_repository;
+            let _ = repo.create_error_message(err);
+            ErrorResponse::map_io_error(err)
+        })
         .map(|privilege| HttpResponse::Ok().json(privilege))
 }
 
@@ -84,6 +92,10 @@ pub async fn list_privilege_history(
         .privilege_service
         .get_privilege_history(Some(auth_guard.claims.sub), query.ticket_uid)
         .await
-        .map_err(ErrorResponse::map_io_error)
+        .map_err(|err| {
+            let repo = &state.statistics_repository;
+            let _ = repo.create_error_message(err);
+            ErrorResponse::map_io_error(err)
+        })
         .map(|privilege| HttpResponse::Ok().json(privilege))
 }

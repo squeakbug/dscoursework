@@ -14,6 +14,8 @@ pub struct FlightServiceImpl {
     pub flight_repository: Box<dyn FlightRepository + Send + Sync>,
 }
 
+use tracing::info;
+
 #[async_trait]
 impl FlightService for FlightServiceImpl {
     async fn get_flight(&self, id: i32) -> Result<FlightResponse> {
@@ -21,6 +23,8 @@ impl FlightService for FlightServiceImpl {
     }
 
     async fn get_flights(&self, page: Option<i32>, size: Option<i32>, flight_number: Option<String>) -> Result<PaginationResponse> {
+        info!("page: {:?}; size: {:?}, flight_nymber: {:?}", page, size, flight_number);
+        
         if let Some(pg) = page {
             if size.is_none() {
                 return Err(ServiceError::BadClientData);

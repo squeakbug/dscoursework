@@ -15,10 +15,6 @@ use crate::models;
 use crate::service::gateway_service::GatewayService;
 use crate::service::service_error::{Result, ServiceError};
 
-const TICKET_SERVICE_NAME: &str = "Ticket";
-const BONUS_SERVICE_NAME: &str = "Bonus";
-const FLIGHT_SERVICE_NAME: &str = "Flight";
-
 #[derive(Clone)]
 pub struct GatewayServiceImpl {
     pub flight_base_path: String,
@@ -52,22 +48,18 @@ impl GatewayServiceImpl {
                 failsafe::Error::Inner(err) => match err {
                     bapis::Error::Serde(_) => ServiceError::BadClientData,
                     bapis::Error::Io(_) => ServiceError::BadClientData,
-                    bapis::Error::Reqwest(_) => ServiceError::ServiceUnavailable(format!(
-                        "{} {}",
-                        String::from(BONUS_SERVICE_NAME),
-                        "Service unavailable"
-                    )),
+                    bapis::Error::Reqwest(_) => ServiceError::BonusServiceUnavailable,
                     bapis::Error::ResponseError(_) => ServiceError::BadClientData,
                 },
-                failsafe::Error::Rejected => ServiceError::ServiceUnavailable(format!(
-                    "{} {}",
-                    String::from(BONUS_SERVICE_NAME),
-                    "Service unavailable"
-                )),
+                failsafe::Error::Rejected => ServiceError::BonusServiceUnavailable,
             })?;
 
         // У одного пользователя может быть только 1 аккаунт
-        let user_bonus = privileges.first().unwrap().to_owned();
+        let user_bonus = if let Some(bonus) = privileges.first() {
+            Ok(bonus.to_owned())
+        } else {
+            Err(ServiceError::NotFoundError)
+        }?;
 
         let result = models::PrivilegeResponse {
             id: user_bonus.id,
@@ -105,18 +97,10 @@ impl GatewayServiceImpl {
                 failsafe::Error::Inner(err) => match err {
                     bapis::Error::Serde(_) => ServiceError::BadClientData,
                     bapis::Error::Io(_) => ServiceError::BadClientData,
-                    bapis::Error::Reqwest(_) => ServiceError::ServiceUnavailable(format!(
-                        "{} {}",
-                        String::from(BONUS_SERVICE_NAME),
-                        "Service unavailable"
-                    )),
+                    bapis::Error::Reqwest(_) => ServiceError::BonusServiceUnavailable,
                     bapis::Error::ResponseError(_) => ServiceError::BadClientData,
                 },
-                failsafe::Error::Rejected => ServiceError::ServiceUnavailable(format!(
-                    "{} {}",
-                    String::from(BONUS_SERVICE_NAME),
-                    "Service unavailable"
-                )),
+                failsafe::Error::Rejected => ServiceError::BonusServiceUnavailable,
             })?;
 
         let result = response
@@ -160,18 +144,10 @@ impl GatewayServiceImpl {
                 failsafe::Error::Inner(err) => match err {
                     bapis::Error::Serde(_) => ServiceError::BadClientData,
                     bapis::Error::Io(_) => ServiceError::BadClientData,
-                    bapis::Error::Reqwest(_) => ServiceError::ServiceUnavailable(format!(
-                        "{} {}",
-                        String::from(BONUS_SERVICE_NAME),
-                        "Service unavailable"
-                    )),
+                    bapis::Error::Reqwest(_) => ServiceError::BonusServiceUnavailable,
                     bapis::Error::ResponseError(_) => ServiceError::BadClientData,
                 },
-                failsafe::Error::Rejected => ServiceError::ServiceUnavailable(format!(
-                    "{} {}",
-                    String::from(BONUS_SERVICE_NAME),
-                    "Service unavailable"
-                )),
+                failsafe::Error::Rejected => ServiceError::BonusServiceUnavailable,
             })?;
 
         let result = models::PrivilegeFullInfo {
@@ -208,18 +184,10 @@ impl GatewayServiceImpl {
                 failsafe::Error::Inner(err) => match err {
                     bapis::Error::Serde(_) => ServiceError::BadClientData,
                     bapis::Error::Io(_) => ServiceError::BadClientData,
-                    bapis::Error::Reqwest(_) => ServiceError::ServiceUnavailable(format!(
-                        "{} {}",
-                        String::from(BONUS_SERVICE_NAME),
-                        "Service unavailable"
-                    )),
+                    bapis::Error::Reqwest(_) => ServiceError::BonusServiceUnavailable,
                     bapis::Error::ResponseError(_) => ServiceError::BadClientData,
                 },
-                failsafe::Error::Rejected => ServiceError::ServiceUnavailable(format!(
-                    "{} {}",
-                    String::from(BONUS_SERVICE_NAME),
-                    "Service unavailable"
-                )),
+                failsafe::Error::Rejected => ServiceError::BonusServiceUnavailable,
             })
     }
 
@@ -244,18 +212,10 @@ impl GatewayServiceImpl {
                 failsafe::Error::Inner(err) => match err {
                     tapis::Error::Serde(_) => ServiceError::BadClientData,
                     tapis::Error::Io(_) => ServiceError::BadClientData,
-                    tapis::Error::Reqwest(_) => ServiceError::ServiceUnavailable(format!(
-                        "{} {}",
-                        String::from(TICKET_SERVICE_NAME),
-                        "Service unavailable"
-                    )),
+                    tapis::Error::Reqwest(_) => ServiceError::TicketServiceUnavailable,
                     tapis::Error::ResponseError(_) => ServiceError::BadClientData,
                 },
-                failsafe::Error::Rejected => ServiceError::ServiceUnavailable(format!(
-                    "{} {}",
-                    String::from(TICKET_SERVICE_NAME),
-                    "Service unavailable"
-                )),
+                failsafe::Error::Rejected => ServiceError::TicketServiceUnavailable,
             })?
             .into_iter()
             .map(|ticket| models::TicketInfo {
@@ -290,18 +250,10 @@ impl GatewayServiceImpl {
                 failsafe::Error::Inner(err) => match err {
                     tapis::Error::Serde(_) => ServiceError::BadClientData,
                     tapis::Error::Io(_) => ServiceError::BadClientData,
-                    tapis::Error::Reqwest(_) => ServiceError::ServiceUnavailable(format!(
-                        "{} {}",
-                        String::from(TICKET_SERVICE_NAME),
-                        "Service unavailable"
-                    )),
+                    tapis::Error::Reqwest(_) => ServiceError::TicketServiceUnavailable,
                     tapis::Error::ResponseError(_) => ServiceError::BadClientData,
                 },
-                failsafe::Error::Rejected => ServiceError::ServiceUnavailable(format!(
-                    "{} {}",
-                    String::from(TICKET_SERVICE_NAME),
-                    "Service unavailable"
-                )),
+                failsafe::Error::Rejected => ServiceError::TicketServiceUnavailable,
             })
             .map(|ticket| models::TicketInfo {
                 id: ticket.id,
@@ -338,18 +290,10 @@ impl GatewayServiceImpl {
                 failsafe::Error::Inner(err) => match err {
                     tapis::Error::Serde(_) => ServiceError::BadClientData,
                     tapis::Error::Io(_) => ServiceError::BadClientData,
-                    tapis::Error::Reqwest(_) => ServiceError::ServiceUnavailable(format!(
-                        "{} {}",
-                        String::from(TICKET_SERVICE_NAME),
-                        "Service unavailable"
-                    )),
+                    tapis::Error::Reqwest(_) => ServiceError::TicketServiceUnavailable,
                     tapis::Error::ResponseError(_) => ServiceError::BadClientData,
                 },
-                failsafe::Error::Rejected => ServiceError::ServiceUnavailable(format!(
-                    "{} {}",
-                    String::from(TICKET_SERVICE_NAME),
-                    "Service unavailable"
-                )),
+                failsafe::Error::Rejected => ServiceError::TicketServiceUnavailable,
             })
             .map(|ticket| models::TicketInfo {
                 id: ticket.id,
@@ -380,18 +324,10 @@ impl GatewayServiceImpl {
                 failsafe::Error::Inner(err) => match err {
                     tapis::Error::Serde(_) => ServiceError::BadClientData,
                     tapis::Error::Io(_) => ServiceError::BadClientData,
-                    tapis::Error::Reqwest(_) => ServiceError::ServiceUnavailable(format!(
-                        "{} {}",
-                        String::from(TICKET_SERVICE_NAME),
-                        "Service unavailable"
-                    )),
+                    tapis::Error::Reqwest(_) => ServiceError::TicketServiceUnavailable,
                     tapis::Error::ResponseError(_) => ServiceError::BadClientData,
                 },
-                failsafe::Error::Rejected => ServiceError::ServiceUnavailable(format!(
-                    "{} {}",
-                    String::from(TICKET_SERVICE_NAME),
-                    "Service unavailable"
-                )),
+                failsafe::Error::Rejected => ServiceError::TicketServiceUnavailable,
             })
     }
 
@@ -417,18 +353,10 @@ impl GatewayServiceImpl {
                 failsafe::Error::Inner(err) => match err {
                     fapis::Error::Serde(_) => ServiceError::BadClientData,
                     fapis::Error::Io(_) => ServiceError::BadClientData,
-                    fapis::Error::Reqwest(_) => ServiceError::ServiceUnavailable(format!(
-                        "{} {}",
-                        String::from(FLIGHT_SERVICE_NAME),
-                        "Service unavailable"
-                    )),
+                    fapis::Error::Reqwest(_) => ServiceError::FlightServiceUnavailable,
                     fapis::Error::ResponseError(_) => ServiceError::BadClientData,
                 },
-                failsafe::Error::Rejected => ServiceError::ServiceUnavailable(format!(
-                    "{} {}",
-                    String::from(FLIGHT_SERVICE_NAME),
-                    "Service unavailable"
-                )),
+                failsafe::Error::Rejected => ServiceError::FlightServiceUnavailable,
             })?
             .items;
 
@@ -470,18 +398,10 @@ impl GatewayServiceImpl {
                 failsafe::Error::Inner(err) => match err {
                     fapis::Error::Serde(_) => ServiceError::BadClientData,
                     fapis::Error::Io(_) => ServiceError::BadClientData,
-                    fapis::Error::Reqwest(_) => ServiceError::ServiceUnavailable(format!(
-                        "{} {}",
-                        String::from(FLIGHT_SERVICE_NAME),
-                        "Service unavailable"
-                    )),
+                    fapis::Error::Reqwest(_) => ServiceError::FlightServiceUnavailable,
                     fapis::Error::ResponseError(_) => ServiceError::BadClientData,
                 },
-                failsafe::Error::Rejected => ServiceError::ServiceUnavailable(format!(
-                    "{} {}",
-                    String::from(FLIGHT_SERVICE_NAME),
-                    "Service unavailable"
-                )),
+                failsafe::Error::Rejected => ServiceError::FlightServiceUnavailable,
             })
             .map(|flights| models::PaginationResponse {
                 page: flights.page,

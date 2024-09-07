@@ -1,6 +1,7 @@
 use derive_more::{Display, Error};
+use serde::Serialize;
 
-#[derive(Debug, Display, Error)]
+#[derive(Clone, Copy, Debug, Display, Error, Serialize)]
 pub enum ServiceError {
     #[allow(unused)]
     #[display(fmt = "not found error")]

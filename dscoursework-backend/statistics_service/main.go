@@ -19,8 +19,6 @@ type Message struct {
 }
 
 func main() {
-	println("Hello world!")
-
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
 	consumer, err := sarama.NewConsumer([]string{"kafka:9092"}, config)
@@ -43,7 +41,12 @@ func main() {
 	}
 
 	// Прослушивание сообщений из Kafka
-	for _, topic := range []string{"service1", "service2", "service3"} {
+	for _, topic := range []string{
+		"bonus-service",
+		"gateway-service",
+		"ticket-service",
+		"flight-service",
+	} {
 		partitionConsumer, err := consumer.ConsumePartition(topic, 0, sarama.OffsetNewest)
 		if err != nil {
 			panic(err)
@@ -53,7 +56,7 @@ func main() {
 		go func() {
 			for msg := range partitionConsumer.Messages() {
 				// Сохранение сообщения в базу данных
-				_, err := db.Exec("INSERT INTO messages (service, data) VALUES ($1, $2)", topic, string(msg.Value))
+				_, err := db.Exec("INSERT INTO messages (service, data) VALUES ($1, $2)", string(msg.Topic), string(msg.Value))
 				if err != nil {
 					panic(err)
 				}

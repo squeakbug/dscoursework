@@ -18,16 +18,23 @@ pub struct GetRequestQuery {
     pub flight_number: Option<String>,
 }
 
+use tracing::info;
+
 #[get("/flights")]
 pub async fn list(
     state: Data<AppState>, 
     query: web::Query<GetRequestQuery>
 ) -> Result<impl Responder, ErrorResponse> {
+    info!("uery: {:?}", "Hello workd!");
     state
         .person_service
         .get_flights(query.page, query.size, query.flight_number.clone())
         .await
-        .map_err(ErrorResponse::map_io_error)
+        .map_err(|err| {
+            let repo = &state.statistics_repository;
+            let _ = repo.create_error_message(err);
+            ErrorResponse::map_io_error(err)
+        })
         .map(|persons| HttpResponse::Ok().json(persons))
 }
 
@@ -47,6 +54,10 @@ pub async fn get_id(
         .person_service
         .get_flight(id)
         .await
-        .map_err(ErrorResponse::map_io_error)
+        .map_err(|err| {
+            let repo = &state.statistics_repository;
+            let _ = repo.create_error_message(err);
+            ErrorResponse::map_io_error(err)
+        })
         .map(|person| HttpResponse::Ok().json(person))
 }

@@ -24,6 +24,7 @@ log.workspace = true
 num_cpus.workspace = true
 once_cell.workspace = true
 r2d2.workspace = true
+rdkafka.workspace = true
 reqwest.workspace = true
 serde.workspace = true
 serde_derive.workspace = true

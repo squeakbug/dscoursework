@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use actix::{
     sync::SyncArbiter,
     Addr,
@@ -6,8 +8,10 @@ use actix_web::{
     middleware::Logger,
     App, web, HttpServer, HttpResponse,
 };
+use app::repository::statistics_repository::StatisticsRepository;
 use diesel::{prelude::*, r2d2::ConnectionManager};
 use r2d2::Pool;
+use rdkafka::{producer::FutureProducer, ClientConfig};
 use tracing::info;
 
 use crate::{
@@ -68,6 +72,12 @@ async fn main() -> std::io::Result<()> {
         ticket_repository: Box::new(ticket_repository),
     };
 
+    let producer: FutureProducer = ClientConfig::new()
+        .set("bootstrap.servers", &config.kafka_bootstrap_servers)
+        .create()
+        .expect("Producer creation failed");
+    let statistics_repository = Arc::new(StatisticsRepository::new(producer));
+
     let jwt_secret = config.jwt_secret.clone();
     let listen_port = config.listen_port.parse::<u16>().expect("Invalid listen port");
     HttpServer::new(move || {
@@ -75,6 +85,7 @@ async fn main() -> std::io::Result<()> {
         let state = AppState {
             ticket_service: Box::new(ticket_service.clone()),
             config: config.clone(),
+            statistics_repository: statistics_repository.clone(),
             jwt_validator,
         };
 

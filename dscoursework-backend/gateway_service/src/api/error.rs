@@ -55,9 +55,17 @@ impl ErrorResponse {
                 status_code: StatusCode::NOT_FOUND,
                 error: e.to_string(),
             },
-            ServiceError::ServiceUnavailable(service_name) => ErrorResponse {
+            ServiceError::BonusServiceUnavailable => ErrorResponse {
                 status_code: StatusCode::SERVICE_UNAVAILABLE,
-                error: service_name,
+                error: e.to_string(),
+            },
+            ServiceError::TicketServiceUnavailable => ErrorResponse {
+                status_code: StatusCode::SERVICE_UNAVAILABLE,
+                error: e.to_string(),
+            },
+            ServiceError::FlightServiceUnavailable => ErrorResponse {
+                status_code: StatusCode::SERVICE_UNAVAILABLE,
+                error: e.to_string(),
             },
             ServiceError::InternalError => ErrorResponse {
                 status_code: StatusCode::INTERNAL_SERVER_ERROR,

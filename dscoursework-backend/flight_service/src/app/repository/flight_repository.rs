@@ -47,10 +47,10 @@ impl FlightRepository for FlightRepositoryImpl {
     }
 
     async fn get_flights(&self, page: Option<i32>, size: Option<i32>, flight_number: Option<String>) -> Result<Vec<models::FlightResponse>> {
-        let page_and_size = page.and_then(|p| size.map(|s| (p, s))).ok_or(ServiceError::InternalError)?;
+        let page_and_size = page.and_then(|p| size.map(|s| (p, s)));
         self.db_addr
             .send(GetFlights {
-                page_and_size: Some(page_and_size),
+                page_and_size: page_and_size,
                 flight_number,
             })
             .await

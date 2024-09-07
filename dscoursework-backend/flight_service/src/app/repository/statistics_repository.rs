@@ -21,7 +21,7 @@ impl StatisticsRepository {
             ServiceError::InternalError
         })?;
         let key = "my_key";
-        let record = FutureRecord::to("bonus-service")
+        let record = FutureRecord::to("flight-service")
             .payload(payload)
             .key(key);
 

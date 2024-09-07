@@ -31,9 +31,9 @@ pub async fn flights_list(
         .await
         .map(|flights| HttpResponse::Ok().json(flights))
         .map_err(|err| {
-            let response = ErrorResponse::map_io_error(err);
-            info!("{}", response.to_string());
-            response
+            let repo = &state.statistics_repository;
+            let _ = repo.create_error_message(&err);
+            ErrorResponse::map_io_error(err)
         })
 }
 
@@ -48,9 +48,9 @@ pub async fn tickets_list(
         .await
         .map(|tickets| HttpResponse::Ok().json(tickets))
         .map_err(|err| {
-            let response = ErrorResponse::map_io_error(err);
-            info!("{}", response.to_string());
-            response
+            let repo = &state.statistics_repository;
+            let _ = repo.create_error_message(&err);
+            ErrorResponse::map_io_error(err)
         })
 }
 
@@ -66,9 +66,9 @@ pub async fn ticket_create(
         .await
         .map(|ticket| HttpResponse::Ok().json(ticket))
         .map_err(|err| {
-            let response = ErrorResponse::map_io_error(err);
-            info!("{}", response.to_string());
-            response
+            let repo = &state.statistics_repository;
+            let _ = repo.create_error_message(&err);
+            ErrorResponse::map_io_error(err)
         })
 }
 
@@ -90,9 +90,9 @@ pub async fn ticket_get(
         .await
         .map(|ticket| HttpResponse::Ok().json(ticket))
         .map_err(|err| {
-            let response = ErrorResponse::map_io_error(err);
-            info!("{}", response.to_string());
-            response
+            let repo = &state.statistics_repository;
+            let _ = repo.create_error_message(&err);
+            ErrorResponse::map_io_error(err)
         })
 }
 
@@ -114,9 +114,9 @@ pub async fn ticket_delete(
         .await
         .map(|_| HttpResponse::NoContent().finish())
         .map_err(|err| {
-            let response = ErrorResponse::map_io_error(err);
-            info!("{}", response.to_string());
-            response
+            let repo = &state.statistics_repository;
+            let _ = repo.create_error_message(&err);
+            ErrorResponse::map_io_error(err)
         })
 }
 
@@ -131,9 +131,9 @@ pub async fn get_user_bonuses(
         .await
         .map(|info| HttpResponse::Ok().json(info))
         .map_err(|err| {
-            let response = ErrorResponse::map_io_error(err);
-            info!("{}", response.to_string());
-            response
+            let repo = &state.statistics_repository;
+            let _ = repo.create_error_message(&err);
+            ErrorResponse::map_io_error(err)
         })
 }
 
@@ -148,8 +148,8 @@ pub async fn bonuses_status(
         .await
         .map(|info| HttpResponse::Ok().json(info))
         .map_err(|err| {
-            let response = ErrorResponse::map_io_error(err);
-            info!("{}", response.to_string());
-            response
+            let repo = &state.statistics_repository;
+            let _ = repo.create_error_message(&err);
+            ErrorResponse::map_io_error(err)
         })
 }

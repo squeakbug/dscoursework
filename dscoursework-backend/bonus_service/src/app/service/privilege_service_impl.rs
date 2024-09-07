@@ -3,11 +3,15 @@ use std::boxed::Box;
 use async_trait::async_trait;
 use futures::future::join_all;
 
-use crate::app::domain::privilege_history::NewPrivilegeHistory;
-use crate::app::models::{self, PrivilegeShortInfo};
-use crate::app::repository::privilege_repository::PrivilegeRepository;
-use crate::app::service::privilege_service::PrivilegeService;
-use crate::app::service::service_error::{Result, ServiceError};
+use crate::app::{
+    domain::privilege_history::NewPrivilegeHistory,
+    models::{self, PrivilegeShortInfo},
+    repository::privilege_repository::PrivilegeRepository,
+    service::{
+        privilege_service::PrivilegeService,
+        service_error::{Result, ServiceError},
+    },
+};
 
 #[derive(Clone)]
 pub struct PrivilegeServiceImpl {
@@ -17,7 +21,19 @@ pub struct PrivilegeServiceImpl {
 #[async_trait]
 impl PrivilegeService for PrivilegeServiceImpl {
     async fn list_privileges(&self, username: Option<String>) -> Result<Vec<models::PrivilegeResponse>> {
-        self.privilege_repository.get_privileges(username).await
+        match self.privilege_repository.get_privileges(username.clone()).await {
+            Err(err) => Err(err),
+            Ok(privileges) if privileges.len() == 0 => {
+                let req = models::PrivilegeCreateRequest {
+                    balance: 0,
+                    username: username.unwrap_or(String::from("default")).clone(),
+                    status: String::from("BRONZE"),
+                };
+                let result = self.privilege_repository.create_privilege(&req).await?;
+                Ok(vec![result])
+            },
+            privileges => privileges,
+        }
     }
 
     async fn create_bonus(&self, request: &models::PrivilegeRequest) -> Result<models::PrivilegeFullInfo> {

@@ -1,6 +1,7 @@
-use derive_more::Display;
+use derive_more::{Display, Error};
+use serde::Serialize;
 
-#[derive(Debug, Display)]
+#[derive(Clone, Debug, Display, Error, Serialize)]
 pub enum ServiceError {
     #[allow(unused)]
     #[display(fmt = "not found error")]
@@ -18,9 +19,17 @@ pub enum ServiceError {
     #[allow(unused)]
     NotImplemented,
 
-    #[display(fmt = "service unavailable")]
+    #[display(fmt = "flight service unavailable")]
     #[allow(unused)]
-    ServiceUnavailable(String),
+    FlightServiceUnavailable,
+
+    #[display(fmt = "ticket service unavailable")]
+    #[allow(unused)]
+    TicketServiceUnavailable,
+
+    #[display(fmt = "bonus service unavailable")]
+    #[allow(unused)]
+    BonusServiceUnavailable,
 
     #[allow(unused)]
     #[display(fmt = "internal error")]

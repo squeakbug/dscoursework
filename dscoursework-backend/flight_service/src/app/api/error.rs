@@ -2,6 +2,7 @@ use actix_web::{error::ResponseError, http::StatusCode, HttpResponse};
 use derive_more::Display;
 use serde::Deserialize;
 use serde::Serialize;
+use thiserror::Error;
 
 use crate::app::service::service_error::ServiceError;
 
@@ -11,7 +12,7 @@ pub struct ErrorPresenter {
     pub errors: Option<Vec<String>>,
 }
 
-#[derive(Debug, Display)]
+#[derive(Error, Debug, Display)]
 #[display(fmt = "{:?}", errors)]
 pub struct ErrorResponse {
     status_code: StatusCode,

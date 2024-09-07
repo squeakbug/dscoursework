@@ -16,12 +16,12 @@ impl StatisticsRepository {
         }
     }
 
-    pub fn create_error_message(&self, err: ServiceError) -> Result<(), ServiceError> {
+    pub fn create_error_message(&self, err: &ServiceError) -> Result<(), ServiceError> {
         let payload = &serde_json::to_string(&err).map_err(|_| {
             ServiceError::InternalError
         })?;
         let key = "my_key";
-        let record = FutureRecord::to("bonus-service")
+        let record = FutureRecord::to("ticket-service")
             .payload(payload)
             .key(key);
 

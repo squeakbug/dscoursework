@@ -1,6 +1,5 @@
 use std::{
-    time::Duration,
-    io::{ErrorKind, Error},
+    io::{Error, ErrorKind}, sync::Arc, time::Duration
 };
 
 use actix_web::{
@@ -13,6 +12,8 @@ use failsafe::{
     failure_policy::ConsecutiveFailures,
     StateMachine, failure_policy, Config
 };
+use rdkafka::{producer::FutureProducer, ClientConfig};
+use repository::statistics_repository::StatisticsRepository;
 use tracing::info;
 use tracing_subscriber;
 use reqwest::Client;
@@ -35,6 +36,7 @@ mod api;
 mod config;
 mod models;
 mod service;
+mod repository;
 mod state;
 
 fn service_config(cfg: &mut web::ServiceConfig) {
@@ -89,6 +91,12 @@ async fn main() -> std::io::Result<()> {
         .build()
         .expect("cannot create pool");
 
+    let producer: FutureProducer = ClientConfig::new()
+        .set("bootstrap.servers", &config.kafka_bootstrap_servers)
+        .create()
+        .expect("Producer creation failed");
+    let statistics_repository = Arc::new(StatisticsRepository::new(producer));
+
     let jwt_secret = config.jwt_secret.clone();
     let listen_port = config.listen_port.parse::<u16>().expect("Invalid listen port");
     let http_server = HttpServer::new(move || {
@@ -102,6 +110,7 @@ async fn main() -> std::io::Result<()> {
                 circuit_breaker: circuit_breaker(),
             }),
             config: config.clone(),
+            statistics_repository: statistics_repository.clone(),
             mq_pool: tx_pool.clone(),
             jwt_validator,
         };

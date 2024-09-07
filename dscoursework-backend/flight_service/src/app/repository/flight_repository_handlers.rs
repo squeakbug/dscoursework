@@ -41,10 +41,14 @@ struct QueryFlightResponse {
     pub price: i32,
 }
 
+use tracing::info;
+
 impl Handler<GetFlights> for DatabaseExecutor {
     type Result = Result<Vec<models::FlightResponse>>;
 
     fn handle(&mut self, msg: GetFlights, _: &mut Self::Context) -> Self::Result {
+        info!("msg: {:?}", "TEST");
+
         let mut conn = self.0.get()?;
 
         let (limit_str, offset_str) = msg.page_and_size.map_or((String::new(), String::new()), |page_ans_size| {
@@ -71,6 +75,8 @@ impl Handler<GetFlights> for DatabaseExecutor {
         let query = sql_query(query_string);
 
         let flight_list = query.load::<QueryFlightResponse>(&mut conn)?;
+        
+        info!("flight_list: {:?}", flight_list);
 
         let result = flight_list
             .into_iter()
