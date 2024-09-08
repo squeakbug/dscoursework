@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Chart.Name }}
-  namespace: rsoi
+  namespace: {{ .Values.global.namespace }}
   labels:
     app.kubernetes.io/name: {{ .Chart.Name }}
     app.kubernetes.io/version: "{{ .Values.service.image.version }}"
@@ -10,7 +10,6 @@ metadata:
     app.kubernetes.io/part-of: micro-services
     app.kubernetes.io/managed-by: helm
 spec:
-  replicas: {{ .Values.service.image.replicas }}
   selector:
     matchLabels:
       app: {{ .Chart.Name }}
@@ -25,11 +24,11 @@ spec:
         app.kubernetes.io/managed-by: helm
     spec:
       containers:
-        - name: gateway
+        - name: "{{ .Chart.Name }}"
           image: "{{ .Values.service.image.name }}:{{ .Values.service.image.version }}"
           imagePullPolicy: IfNotPresent
           ports:
-          - containerPort: 8080
+          - containerPort: {{ .Values.service.internalPort }}
           env:
           - name: KAFKA__BOOTSTRAP_SERVERS
             valueFrom:
@@ -66,3 +65,10 @@ spec:
               configMapKeyRef:
                 name: gateway-config
                 key: IDENTITY_SECRET_KEY
+          resources:
+            requests:
+              cpu: 1
+              memory: 512Mi
+            limits:
+              cpu: 1
+              memory: 512Mi

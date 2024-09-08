@@ -1,17 +1,6 @@
-domain: squeakbug73.ru
 service:
-  port: 8080
   image:
-    name: >
-     "{{ .Values.global.containerRegistryAddr }}/
-      {{ .Values.global.containerRegistryUser }}/
-      bonus-service"
+    name: squeakbug73/bonus-service
     version: "0.4"
-  replicas: 3
-  resources:
-    requests:
-      cpu: 1
-      memory: 512Mi
-    limits:
-      cpu: 1
-      memory: 512Mi
+  internalPort: "8050"
+  externalPort: "8050"

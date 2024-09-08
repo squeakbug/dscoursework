@@ -2,13 +2,17 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: flight-config
-  namespace: rsoi
+  namespace: {{ .Values.global.namespace }}
 data:
-  DATABASE_URL:
-    "postgres://program:test@147.45.166.216/flights"
+  DATABASE_URL: {{
+    printf "postgresql://%s:%s@%s/flights"
+    .Values.global.postgresLogin
+    .Values.global.postgresPassword
+    .Values.global.postgresEndpoint
+  }}
   LISTEN_PORT:
-    "8060"
+    "{{ .Values.service.internalPort }}"
   IDENTITY_SECRET_KEY:
-    "my_secret_key"
+    "{{ .Values.global.identitySecretKey }}"
   KAFKA__BOOTSTRAP_SERVERS:
-    "147.45.166.216:9092"
+    "{{ .Values.global.kafkaBootstrapServerEndpoint }}"

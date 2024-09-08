@@ -1,10 +1,25 @@
 global:
+  # namespace - project namespace
+  namespace: "dsc"
   # containerRegistryAddr - Container registry address
-  containerRegistryAddr:
-    "docker.io"
+  containerRegistryAddr: "docker.io"
   # containerRegistryUser - Container registry user
-  containerRegistryUser:
-    "squeakbug73"
-  # homelabAddr - Homelab address
-  "homelabAddr":
-    "147.45.166.216"
+  containerRegistryUser: "squeakbug73"
+  # postgresEndpoint - Postgres addr
+  postgresEndpoint:
+    "147.45.166.216:5432"
+  # kafkaBootstrapServerEndpoint - *Вам не следует это видеть*
+  kafkaBootstrapServerEndpoint:
+    "147.45.166.216:9092"
+  # rmqEndpoint - *Вам не следует это видеть*
+  rmqEndpoint:
+    "amqp://rmq:rmq@147.45.166.216:5672/%2f"
+  # identitySecretKey - *Вам не следует это видеть*
+  identitySecretKey:
+    "rStWRoGabsVZcU8LEVYBf2gULI3x0Eg85fprNwvPFhUzgVaGyBXFWM4M8/BjEnf/2XGrNwARl9P+x5V3"
+  # postgresLogin - *Вам не следует это видеть*
+  postgresLogin:
+    "program"
+  # postgresPassword - *Вам не следует это видеть*
+  postgresPassword:
+    "test"

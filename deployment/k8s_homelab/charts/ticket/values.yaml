@@ -1,15 +1,6 @@
 service:
-  port: 8060
   image:
-    name: > 
-      "{{ .Values.global.containerRegistryAddr }}/
-      {{ .Values.global.containerRegistryUser }}/
-      /ticket-service"
+    name: squeakbug73/ticket-service
     version: "0.4"
-  resources:
-    requests:
-      cpu: 1
-      memory: 512Mi
-    limits:
-      cpu: 1
-      memory: 512Mi
+  internalPort: "8070"
+  externalPort: "8070"

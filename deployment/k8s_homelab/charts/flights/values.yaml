@@ -1,17 +1,6 @@
-domain: squeakbug73.ru
 service:
-  port: 8080
   image:
-    name: > 
-     "{{ .Values.global.containerRegistryAddr }}/
-      {{ .Values.global.containerRegistryUser }}/
-      flight-service"
-    version: "0.4"
-  replicas: 3
-  resources:
-    requests:
-      cpu: 1
-      memory: 512Mi
-    limits:
-      cpu: 1
-      memory: 512Mi
+    name: squeakbug73/flight-service
+    version: "0.5"
+  externalPort: "8060"
+  internalPort: "8060"

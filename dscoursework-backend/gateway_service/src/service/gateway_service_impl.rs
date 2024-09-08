@@ -360,10 +360,15 @@ impl GatewayServiceImpl {
             })?
             .items;
 
-        let flight_by_number = match flight_resp {
-            None => Err(ServiceError::NotFoundError),
-            _ => Ok(flight_resp.unwrap().first().unwrap().to_owned()),
-        }?;
+        let flight_by_number = flight_resp.map_or_else(
+            || { Err(ServiceError::NotFoundError) },
+            |flight_resp| {
+                flight_resp.first().map_or_else(
+                    || { Err(ServiceError::NotFoundError) },
+                    |first_flight| { Ok(first_flight.to_owned()) }
+                )
+            }
+        )?;
 
         let result = models::FlightResponse {
             flight_number: flight_by_number.flight_number,

@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Chart.Name}}
-  namespace: rsoi
+  namespace: {{ .Values.global.namespace }}
   labels:
     app.kubernetes.io/name: {{ .Chart.Name }}
     app.kubernetes.io/version: "{{ .Values.service.image.version }}"
@@ -15,6 +15,6 @@ spec:
     app: {{ .Chart.Name }}
   ports:
   - protocol: TCP
-    port: 8080
-    targetPort: 8080
+    port: {{ .Values.service.externalPort }}
+    targetPort: {{ .Values.service.internalPort }}
     nodePort: 30000

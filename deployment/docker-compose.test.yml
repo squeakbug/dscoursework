@@ -19,6 +19,8 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+      secret-vault:
+        condition: service_healthy
     ports:
       - "${GATEWAY_SERVICE__LISTEN_PORT}:8080"
     networks:
@@ -43,6 +45,8 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      secret-vault:
+        condition: service_healthy
     networks:
       - services-network
 
@@ -50,7 +54,7 @@ services:
     build: 
       context: ../
       dockerfile: ./deployment/flight_service/Dockerfile
-    image: squeakbug73/flight-service:0.4
+    image: squeakbug73/flight-service:0.5
     restart: unless-stopped
     container_name: flight-service
     environment:
@@ -64,6 +68,8 @@ services:
       postgres:
         condition: service_healthy
       kafka:
+        condition: service_healthy
+      secret-vault:
         condition: service_healthy
     networks:
       - services-network
@@ -87,6 +93,8 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      secret-vault:
+        condition: service_healthy
     networks:
       - services-network
 
@@ -107,6 +115,8 @@ services:
       postgres:
         condition: service_healthy
       kafka:
+        condition: service_healthy
+      secret-vault:
         condition: service_healthy
     networks:
       - services-network
@@ -179,6 +189,7 @@ services:
     image: ${DOCKER_REGISTRY}/confluentinc/cp-kafka:7.4.6
     hostname: kafka
     container_name: kafka
+    restart: always
     healthcheck:
       test: nc -z localhost 9092 || exit -1
       interval: 5s
@@ -268,6 +279,7 @@ services:
       AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER}
       AUTHENTIK_POSTGRESQL__NAME: ${POSTGRES_DB}
       AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD}
+      AUTHENTIK_SECRET_KEY: ${IDENTITY_SECRET_KEY}
     user: root
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -283,12 +295,37 @@ services:
   whoami:
     image: "traefik/whoami"
     container_name: "simple-service"
+    restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
       - "traefik.http.routers.whoami.entrypoints=web"
     networks:
       - services-network
+
+  secret-vault:
+    image: vault:1.13.3
+    container_name: secret-vault
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://secret-vault:8200/v1/sys/health?standbyok=true" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    ports:
+      - "8200:8200"
+      - "8201:8201"
+      - "8125:8125"
+    volumes:
+      - hashivault-volume:/vault/file:rw
+      - ./hashivault:/vault/config:rw
+    cap_add:
+      - IPC_LOCK
+    entrypoint: vault server -config=/vault/config/vault.json
+    networks:
+      - services-network
+
 
 networks:
   services-network:
@@ -299,4 +336,4 @@ volumes:
   minio-volume: {}
   redis-volume: {}
   kafka-volume: {}
-
+  hashivault-volume: {}

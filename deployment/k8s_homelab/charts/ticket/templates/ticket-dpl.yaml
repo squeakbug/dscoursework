@@ -1,9 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  # See: https://kubernetes.io/docs/concepts/overview/working-with-objects/common-labels/
   name: {{ .Chart.Name }}
-  namespace: rsoi
+  namespace: {{ .Values.global.namespace }}
   labels:
     app.kubernetes.io/name: {{ .Chart.Name }}
     app.kubernetes.io/version: "{{ .Values.service.image.version }}"
@@ -11,7 +10,6 @@ metadata:
     app.kubernetes.io/part-of: micro-services
     app.kubernetes.io/managed-by: helm
 spec:
-  replicas: {{ .Values.service.image.replicas }}
   selector:
     matchLabels:
       app: {{ .Chart.Name }}
@@ -30,7 +28,7 @@ spec:
         image: "{{ .Values.service.image.name }}:{{ .Values.service.image.version }}"
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 8070
+        - containerPort: {{ .Values.service.internalPort }}
         env:
         - name: KAFKA__BOOTSTRAP_SERVERS
           valueFrom:
@@ -52,3 +50,10 @@ spec:
             configMapKeyRef:
               name: ticket-config
               key: LISTEN_PORT
+        resources:
+          requests:
+            cpu: 1
+            memory: 512Mi
+          limits:
+            cpu: 1
+            memory: 512Mi

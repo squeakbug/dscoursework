@@ -1,15 +1,6 @@
 service:
-  port: 8090
   image:
-    name: >
-      "{{ .Values.global.containerRegistryAddr }}/
-      {{ .Values.global.containerRegistryUser }}/
-      gateway-service"
+    name: squeakbug73/gateway-service
     version: "0.4"
-  resources:
-    requests:
-      cpu: 1
-      memory: 512Mi
-    limits:
-      cpu: 1
-      memory: 512Mi
+  externalPort: "8080"
+  internalPort: "8080"
