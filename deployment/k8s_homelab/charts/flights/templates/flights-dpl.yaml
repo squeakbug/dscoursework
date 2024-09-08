@@ -10,7 +10,7 @@ metadata:
     app.kubernetes.io/part-of: micro-services
     app.kubernetes.io/managed-by: helm
 spec:
-  replicas: 3
+  replicas: "{{ .Values.service.image.replicas }}"
   selector:
     matchLabels:
       app: {{ .Chart.Name }}
@@ -26,7 +26,7 @@ spec:
     spec:
       containers:
         - name: flight
-          image: squeakbug73/flight-service:0.1
+          image: "{{ .Values.service.image.name }}:{{ .Values.service.image.version }}"
           imagePullPolicy: IfNotPresent
           ports:
           - containerPort: 8060

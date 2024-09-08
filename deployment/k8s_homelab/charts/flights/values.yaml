@@ -6,7 +6,7 @@ service:
      "{{ .Values.global.containerRegistryAddr }}/
       {{ .Values.global.containerRegistryUser }}/
       flight-service"
-    version: "0.1"
+    version: "0.4"
   replicas: 3
   resources:
     requests:

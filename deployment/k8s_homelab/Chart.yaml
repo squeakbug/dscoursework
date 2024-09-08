@@ -2,7 +2,7 @@ apiVersion: v1
 name: "dscoursework"
 description: "Здесь могло быть описание чарта"
 type: application
-version: 0.1.0
+version: 1.0.0
 dependencies:
   - name: bonus
     version: 1.0.0

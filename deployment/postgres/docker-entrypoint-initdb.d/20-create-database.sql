@@ -96,5 +96,6 @@ CREATE TABLE IF NOT EXISTS messages
     data TEXT
 );
 
+GRANT USAGE, CREATE ON SCHEMA public TO program;
 GRANT ALL PRIVILEGES ON TABLE messages TO program;
 GRANT USAGE, SELECT ON SEQUENCE messages_id_seq TO program;

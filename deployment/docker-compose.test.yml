@@ -5,7 +5,7 @@ services:
     build: 
       context: ../
       dockerfile: ./deployment/gateway_service/Dockerfile
-    image: squeakbug73/gateway-service:0.1
+    image: squeakbug73/gateway-service:0.4
     restart: unless-stopped
     container_name: gateway-service
     environment:
@@ -28,7 +28,7 @@ services:
     build: 
       context: ../
       dockerfile: ./deployment/ticket_service/Dockerfile
-    image: squeakbug73/ticket-service:0.1
+    image: squeakbug73/ticket-service:0.4
     restart: unless-stopped
     container_name: ticket-service
     environment:
@@ -50,7 +50,7 @@ services:
     build: 
       context: ../
       dockerfile: ./deployment/flight_service/Dockerfile
-    image: squeakbug73/flight-service:0.1
+    image: squeakbug73/flight-service:0.4
     restart: unless-stopped
     container_name: flight-service
     environment:
@@ -72,7 +72,7 @@ services:
     build: 
       context: ../
       dockerfile: ./deployment/bonus_service/Dockerfile
-    image: squeakbug73/bonus-service:0.1
+    image: squeakbug73/bonus-service:0.4
     restart: unless-stopped
     container_name: bonus-service
     environment:
@@ -94,16 +94,15 @@ services:
     build: 
       context: ../
       dockerfile: ./deployment/statistics_service/Dockerfile
-    image: squeakbug73/statistics-service:0.1
+    image: squeakbug73/statistics-service:0.2
     restart: unless-stopped
+    container_name: statistics-service
     ports:
-      - "8030:8030"
+      - "${STATISTICS_SERVICE__LISTEN_PORT}:8090"
     environment:
-      - POSTGRES_HOST=postgres
-      - POSTGRES_PORT=5432
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=stat
+      STATISTICS_SERVICE__DATABASE_URL: ${STATISTICS_SERVICE__DATABASE_URL}
+      STATISTICS_SERVICE__LISTEN_PORT: ${STATISTICS_SERVICE__LISTEN_PORT}
+      KAFKA__BOOTSTRAP_SERVERS: ${KAFKA__BOOTSTRAP_SERVERS}
     depends_on:
       postgres:
         condition: service_healthy
@@ -216,6 +215,8 @@ services:
     volumes:
       - minio-volume:/data
     command: server --console-address ":9001" /data
+    networks:
+      - services-network
 
   redis:
     image: ${DOCKER_REGISTRY}/library/redis:alpine

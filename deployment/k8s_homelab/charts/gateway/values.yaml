@@ -5,7 +5,7 @@ service:
       "{{ .Values.global.containerRegistryAddr }}/
       {{ .Values.global.containerRegistryUser }}/
       gateway-service"
-    version: "0.1"
+    version: "0.4"
   resources:
     requests:
       cpu: 1
