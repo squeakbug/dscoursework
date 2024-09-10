@@ -16,3 +16,9 @@ data:
     "{{ .Values.global.identitySecretKey }}"
   KAFKA__BOOTSTRAP_SERVERS:
     "{{ .Values.global.kafkaBootstrapServerEndpoint }}"
+  AUTHENTIK__JWKS:
+    "{{ .Values.global.authentikJWKSEndpoint }}"
+  AUTHENTIK__USER_INFO:
+    "{{ .Values.global.authentikUserInfoEndpoint }}"
+  AUTHENTIK__OPENID_CONFIG:
+    "{{ .Values.global.authentikOpenIDConfigEndpoint }}"

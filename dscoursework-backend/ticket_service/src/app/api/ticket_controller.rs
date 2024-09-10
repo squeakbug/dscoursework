@@ -13,7 +13,7 @@ use crate::{
     app::{
         api::{
             error::*,
-            auth::JwtAuthGuard,
+            jwk_auth::AuthenticationGuard,
         },
         dto_models,
     },
@@ -27,12 +27,12 @@ pub struct ListTicketsQuery {
 #[get("/tickets")]
 pub async fn list(
     state: Data<AppState>, 
-    auth_guard: JwtAuthGuard, 
+    auth_guard: AuthenticationGuard, 
     query: web::Query<ListTicketsQuery>
 ) -> Result<impl Responder, ErrorResponse> {
     state
         .ticket_service
-        .get_tickets(Some(auth_guard.claims.sub), query.flight_number.clone())
+        .get_tickets(Some(auth_guard.claims.nickname), query.flight_number.clone())
         .await
         .map_err(|err| {
             let repo = &state.statistics_repository;
@@ -47,7 +47,7 @@ use tracing::info;
 #[post("/tickets")]
 pub async fn create(
     state: Data<AppState>,
-    _auth_guard: JwtAuthGuard,
+    _auth_guard: AuthenticationGuard,
     ticket: web::Json<dto_models::TicketCreateRequest>
 ) -> Result<impl Responder, ErrorResponse> {
     info!("{:?}", ticket);
@@ -66,7 +66,7 @@ pub async fn create(
 #[get("/tickets/{ticketUid}")]
 pub async fn get_id(
     state: Data<AppState>, 
-    _auth_guard: JwtAuthGuard, 
+    _auth_guard: AuthenticationGuard, 
     path: Path<DeleteRequest>
 ) -> Result<impl Responder, ErrorResponse> {
     let ticket_uid = path.ticket_uid;
@@ -91,7 +91,7 @@ pub struct DeleteRequest {
 #[delete("/tickets/{ticketUid}")]
 pub async fn delete(
     state: Data<AppState>, 
-    _auth_guard: JwtAuthGuard, 
+    _auth_guard: AuthenticationGuard, 
     path: Path<DeleteRequest>
 ) -> Result<impl Responder, ErrorResponse> {
     let ticket_uid = path.ticket_uid;
@@ -110,7 +110,7 @@ pub async fn delete(
 #[patch("/tickets/{ticketUid}")]
 pub async fn patch_id(
     state: Data<AppState>,
-    _auth_guard: JwtAuthGuard,
+    _auth_guard: AuthenticationGuard,
     path: Path<DeleteRequest>,
     ticket: web::Json<dto_models::TicketRequest>,
 ) -> Result<impl Responder, ErrorResponse> {

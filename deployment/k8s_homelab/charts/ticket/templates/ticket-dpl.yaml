@@ -42,6 +42,21 @@ spec:
             configMapKeyRef:
               name: ticket-config
               key: KAFKA__BOOTSTRAP_SERVERS
+        - name: AUTHENTIK__JWKS
+          valueFrom:
+            configMapKeyRef:
+              name: ticket-config
+              key: AUTHENTIK__JWKS
+        - name: AUTHENTIK__USER_INFO
+          valueFrom:
+            configMapKeyRef:
+              name: ticket-config
+              key: AUTHENTIK__USER_INFO
+        - name: AUTHENTIK__OPENID_CONFIG
+          valueFrom:
+            configMapKeyRef:
+              name: ticket-config
+              key: AUTHENTIK__OPENID_CONFIG
         - name: IDENTITY_SECRET_KEY
           valueFrom:
             configMapKeyRef:

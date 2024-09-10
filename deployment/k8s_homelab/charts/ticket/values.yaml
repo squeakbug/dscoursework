@@ -1,6 +1,6 @@
 service:
   image:
     name: squeakbug73/ticket-service
-    version: "0.5"
+    version: "0.6"
   internalPort: "8070"
   externalPort: "8070"

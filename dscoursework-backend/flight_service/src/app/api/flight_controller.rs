@@ -4,7 +4,7 @@ use actix_web_validator::Path;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-use crate::app::api::auth::JwtAuthGuard;
+use crate::app::api::jwk_auth::AuthenticationGuard;
 
 use crate::{
     state::AppState,
@@ -46,7 +46,7 @@ pub struct GetRequestPath {
 #[get("/flights/{id}")]
 pub async fn get_id(
     state: Data<AppState>, 
-    _: JwtAuthGuard, 
+    _: AuthenticationGuard, 
     path: Path<GetRequestPath>
 ) -> Result<impl Responder, ErrorResponse> {
     let id = path.id;

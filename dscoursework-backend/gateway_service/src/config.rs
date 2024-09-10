@@ -10,6 +10,10 @@ pub struct Config {
     pub rmq_address: String,
     pub kafka_bootstrap_servers: String,
 
+    pub authentik_jwks: String,
+    pub authentik_user_info: String,
+    pub authentik_openid_config: String,
+
     pub jwt_secret: String,
 }
 
@@ -50,6 +54,10 @@ impl Config {
         let rmq_address = config_default("RABBIT_MQ_ADDRESS", "amqp://rmq:rmq@localhost:5672/%2f");
         let kafka_bootstrap_servers = config("KAFKA__BOOTSTRAP_SERVERS")?;
 
+        let authentik_jwks = config("AUTHENTIK__JWKS")?;
+        let authentik_user_info = config("AUTHENTIK__USER_INFO")?;
+        let authentik_openid_config = config("AUTHENTIK__OPENID_CONFIG")?;
+
         let jwt_secret = config("IDENTITY_SECRET_KEY")?;
 
         let config = Config {
@@ -59,6 +67,10 @@ impl Config {
             ticket_service_address,
             rmq_address,
             kafka_bootstrap_servers,
+
+            authentik_jwks,
+            authentik_user_info,
+            authentik_openid_config,
 
             jwt_secret,
         };

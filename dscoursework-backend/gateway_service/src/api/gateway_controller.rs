@@ -1,12 +1,13 @@
 use actix_web::web::Data;
 use actix_web::{delete, get, post, web, HttpResponse, Responder, Result};
-use tracing::info;
 use serde::Deserialize;
 use validator::Validate;
 
-use crate::api::auth::JwtAuthGuard;
 use crate::{
-    api::error::ErrorResponse,
+    api::{
+        jwk_auth::AuthenticationGuard,
+        error::ErrorResponse,
+    },
     models,
     state::AppState,
 };
@@ -22,7 +23,7 @@ pub struct Info {
 #[get("/flights")]
 pub async fn flights_list(
     state: Data<AppState>,
-    auth_guard: JwtAuthGuard,
+    auth_guard: AuthenticationGuard,
     info: web::Query<Info>,
 ) -> Result<impl Responder, ErrorResponse> {
     state
@@ -40,11 +41,11 @@ pub async fn flights_list(
 #[get("/tickets")]
 pub async fn tickets_list(
     state: Data<AppState>,
-    auth_guard: JwtAuthGuard,
+    auth_guard: AuthenticationGuard,
 ) -> Result<impl Responder, ErrorResponse> {
     state
         .gateway_service
-        .get_user_tickets(auth_guard.token, auth_guard.claims.sub)
+        .get_user_tickets(auth_guard.token, auth_guard.claims.nickname)
         .await
         .map(|tickets| HttpResponse::Ok().json(tickets))
         .map_err(|err| {
@@ -57,12 +58,12 @@ pub async fn tickets_list(
 #[post("/tickets")]
 pub async fn ticket_create(
     state: Data<AppState>,
-    auth_guard: JwtAuthGuard,
+    auth_guard: AuthenticationGuard,
     body: web::Json<models::TicketPurchaseRequest>,
 ) -> Result<impl Responder, ErrorResponse> {
     state
         .gateway_service
-        .buy_ticket(auth_guard.token, auth_guard.claims.sub, body.0)
+        .buy_ticket(auth_guard.token, auth_guard.claims.nickname, body.0)
         .await
         .map(|ticket| HttpResponse::Ok().json(ticket))
         .map_err(|err| {
@@ -81,12 +82,12 @@ pub struct GetTicketPath {
 #[get("/tickets/{ticketUid}")]
 pub async fn ticket_get(
     state: Data<AppState>,
-    auth_guard: JwtAuthGuard,
+    auth_guard: AuthenticationGuard,
     path: web::Path<GetTicketPath>,
 ) -> Result<impl Responder, ErrorResponse> {
     state
         .gateway_service
-        .get_ticket_by_uid(auth_guard.token, auth_guard.claims.sub, path.ticket_uid)
+        .get_ticket_by_uid(auth_guard.token, auth_guard.claims.nickname, path.ticket_uid)
         .await
         .map(|ticket| HttpResponse::Ok().json(ticket))
         .map_err(|err| {
@@ -105,12 +106,12 @@ pub struct DeleteTicketPath {
 #[delete("/tickets/{ticketUid}")]
 pub async fn ticket_delete(
     state: Data<AppState>,
-    auth_guard: JwtAuthGuard,
+    auth_guard: AuthenticationGuard,
     path: web::Path<DeleteTicketPath>,
 ) -> Result<impl Responder, ErrorResponse> {
     state
         .gateway_service
-        .return_ticket(auth_guard.token, auth_guard.claims.sub, path.ticket_uid)
+        .return_ticket(auth_guard.token, auth_guard.claims.nickname, path.ticket_uid)
         .await
         .map(|_| HttpResponse::NoContent().finish())
         .map_err(|err| {
@@ -123,11 +124,11 @@ pub async fn ticket_delete(
 #[get("/me")]
 pub async fn get_user_bonuses(
     state: Data<AppState>,
-    auth_guard: JwtAuthGuard,
+    auth_guard: AuthenticationGuard,
 ) -> Result<impl Responder, ErrorResponse> {
     state
         .gateway_service
-        .get_user_info(auth_guard.token, auth_guard.claims.sub)
+        .get_user_info(auth_guard.token, auth_guard.claims.nickname)
         .await
         .map(|info| HttpResponse::Ok().json(info))
         .map_err(|err| {
@@ -140,11 +141,11 @@ pub async fn get_user_bonuses(
 #[get("/privilege")]
 pub async fn bonuses_status(
     state: Data<AppState>,
-    auth_guard: JwtAuthGuard,
+    auth_guard: AuthenticationGuard,
 ) -> Result<impl Responder, ErrorResponse> {
     state
         .gateway_service
-        .get_privilege_with_history(auth_guard.token, auth_guard.claims.sub)
+        .get_privilege_with_history(auth_guard.token, auth_guard.claims.nickname)
         .await
         .map(|info| HttpResponse::Ok().json(info))
         .map_err(|err| {

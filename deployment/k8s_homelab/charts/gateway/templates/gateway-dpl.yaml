@@ -67,6 +67,21 @@ spec:
               configMapKeyRef:
                 name: gateway-config
                 key: TICKET_SERVICE_ADDRESS
+          - name: AUTHENTIK__JWKS
+            valueFrom:
+              configMapKeyRef:
+                name: gateway-config
+                key: AUTHENTIK__JWKS
+          - name: AUTHENTIK__USER_INFO
+            valueFrom:
+              configMapKeyRef:
+                name: gateway-config
+                key: AUTHENTIK__USER_INFO
+          - name: AUTHENTIK__OPENID_CONFIG
+            valueFrom:
+              configMapKeyRef:
+                name: gateway-config
+                key: AUTHENTIK__OPENID_CONFIG
           - name: IDENTITY_SECRET_KEY
             valueFrom:
               configMapKeyRef:

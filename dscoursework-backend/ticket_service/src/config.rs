@@ -5,8 +5,13 @@ use std::env;
 pub struct Config {
     pub listen_port: String,
     pub database_url: String,
-    pub jwt_secret: String,
     pub kafka_bootstrap_servers: String,
+
+    pub authentik_jwks: String,
+    pub authentik_user_info: String,
+    pub authentik_openid_config: String,
+
+    pub jwt_secret: String,
 }
 
 #[derive(Debug)]
@@ -39,14 +44,24 @@ impl Config {
     pub fn init() -> Result<Config, ConfigError> {
         let listen_port = config_default("TICKET_SERVICE__LISTEN_PORT", "8080");
         let database_url = config("TICKET_SERVICE__DATABASE_URL")?;
-        let jwt_secret = config("IDENTITY_SECRET_KEY")?;
         let kafka_bootstrap_servers = config("KAFKA__BOOTSTRAP_SERVERS")?;
+
+        let authentik_jwks = config("AUTHENTIK__JWKS")?;
+        let authentik_user_info = config("AUTHENTIK__USER_INFO")?;
+        let authentik_openid_config = config("AUTHENTIK__OPENID_CONFIG")?;
+
+        let jwt_secret = config("IDENTITY_SECRET_KEY")?;
 
         let config = Config {
             listen_port,
             database_url,
-            jwt_secret,
             kafka_bootstrap_servers,
+
+            authentik_jwks,
+            authentik_user_info,
+            authentik_openid_config,
+
+            jwt_secret,
         };
 
         Ok(config)

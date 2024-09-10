@@ -23,3 +23,9 @@ global:
   # postgresPassword - *Вам не следует это видеть*
   postgresPassword:
     "test"
+  authentikJWKSEndpoint:
+    "https://147.45.166.216:9443/application/o/dsc/jwks/"
+  authentikUserInfoEndpoint:
+    "https://147.45.166.216:9443/application/o/userinfo/"
+  authentikOpenIDConfigEndpoint:
+    "https://147.45.166.216:9443//application/o/dsc/.well-known/openid-configuration"

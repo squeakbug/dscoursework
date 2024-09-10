@@ -9,7 +9,7 @@ use crate::{
     app::{
         api::{
             error::*,
-            auth::JwtAuthGuard,
+            jwk_auth::AuthenticationGuard,
         },
         models,
     },
@@ -18,11 +18,11 @@ use crate::{
 #[get("/privileges")]
 pub async fn list_privileges(
     state: Data<AppState>,
-    auth_guard: JwtAuthGuard,
+    auth_guard: AuthenticationGuard,
 ) -> Result<impl Responder, ErrorResponse> {
     state
         .privilege_service
-        .list_privileges(Some(auth_guard.claims.sub))
+        .list_privileges(Some(auth_guard.claims.nickname))
         .await
         .map_err(|err| {
             let repo = &state.statistics_repository;
@@ -35,7 +35,7 @@ pub async fn list_privileges(
 #[post("/bonuses")]
 pub async fn create_bonus(
     state: Data<AppState>,
-    _: JwtAuthGuard,
+    _: AuthenticationGuard,
     bonus: web::Json<models::PrivilegeRequest>,
 ) -> Result<impl Responder, ErrorResponse> {
     state
@@ -59,12 +59,12 @@ pub struct DeleteBonusPath {
 #[delete("/bonuses/{ticketUid}")]
 pub async fn delete_bonus(
     state: Data<AppState>,
-    auth_guard: JwtAuthGuard,
+    auth_guard: AuthenticationGuard,
     path: Path<DeleteBonusPath>,
 ) -> Result<impl Responder, ErrorResponse> {
     state
         .privilege_service
-        .delete_bonus(auth_guard.claims.sub, path.ticket_uid)
+        .delete_bonus(auth_guard.claims.nickname, path.ticket_uid)
         .await
         .map_err(|err| {
             let repo = &state.statistics_repository;
@@ -85,12 +85,12 @@ pub struct PrivilegeHistoryQuery {
 #[get("/privilege_history")]
 pub async fn list_privilege_history(
     state: Data<AppState>,
-    auth_guard: JwtAuthGuard,
+    auth_guard: AuthenticationGuard,
     query: web::Query<PrivilegeHistoryQuery>,
 ) -> Result<impl Responder, ErrorResponse> {
     state
         .privilege_service
-        .get_privilege_history(Some(auth_guard.claims.sub), query.ticket_uid)
+        .get_privilege_history(Some(auth_guard.claims.nickname), query.ticket_uid)
         .await
         .map_err(|err| {
             let repo = &state.statistics_repository;

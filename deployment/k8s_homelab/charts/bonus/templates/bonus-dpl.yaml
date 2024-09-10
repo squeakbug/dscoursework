@@ -47,6 +47,21 @@ spec:
             configMapKeyRef:
               name: bonus-config
               key: IDENTITY_SECRET_KEY
+        - name: AUTHENTIK__JWKS
+          valueFrom:
+            configMapKeyRef:
+              name: bonus-config
+              key: AUTHENTIK__JWKS
+        - name: AUTHENTIK__USER_INFO
+          valueFrom:
+            configMapKeyRef:
+              name: bonus-config
+              key: AUTHENTIK__USER_INFO
+        - name: AUTHENTIK__OPENID_CONFIG
+          valueFrom:
+            configMapKeyRef:
+              name: bonus-config
+              key: AUTHENTIK__OPENID_CONFIG
         - name: BONUS_SERVICE__DATABASE_URL
           valueFrom:
             configMapKeyRef:

@@ -1,6 +1,6 @@
 service:
   image:
     name: squeakbug73/bonus-service
-    version: "0.5"
+    version: "0.6"
   internalPort: "8050"
   externalPort: "8050"

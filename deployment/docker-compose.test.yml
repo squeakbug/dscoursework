@@ -5,7 +5,7 @@ services:
     build: 
       context: ../
       dockerfile: ./deployment/gateway_service/Dockerfile
-    image: squeakbug73/gateway-service:0.5
+    image: squeakbug73/gateway-service:0.6
     restart: unless-stopped
     container_name: gateway-service
     environment:
@@ -15,11 +15,12 @@ services:
       FLIGHT_SERVICE_ADDRESS: ${FLIGHT_SERVICE_ADDRESS}
       TICKET_SERVICE_ADDRESS: ${TICKET_SERVICE_ADDRESS}
       IDENTITY_SECRET_KEY: ${IDENTITY_SECRET_KEY}
+      AUTHENTIK__JWKS: ${AUTHENTIK__JWKS}
+      AUTHENTIK__USER_INFO: ${AUTHENTIK__USER_INFO}
+      AUTHENTIK__OPENID_CONFIG: ${AUTHENTIK__OPENID_CONFIG}
       KAFKA__BOOTSTRAP_SERVERS: ${KAFKA__BOOTSTRAP_SERVERS}
     depends_on:
       kafka:
-        condition: service_healthy
-      secret-vault:
         condition: service_healthy
     ports:
       - "${GATEWAY_SERVICE__LISTEN_PORT}:8080"
@@ -30,13 +31,16 @@ services:
     build: 
       context: ../
       dockerfile: ./deployment/ticket_service/Dockerfile
-    image: squeakbug73/ticket-service:0.5
+    image: squeakbug73/ticket-service:0.6
     restart: unless-stopped
     container_name: ticket-service
     environment:
       TICKET_SERVICE__LISTEN_PORT: ${TICKET_SERVICE__LISTEN_PORT}
       TICKET_SERVICE__DATABASE_URL: ${TICKET_SERVICE__DATABASE_URL}
       IDENTITY_SECRET_KEY: ${IDENTITY_SECRET_KEY}
+      AUTHENTIK__JWKS: ${AUTHENTIK__JWKS}
+      AUTHENTIK__USER_INFO: ${AUTHENTIK__USER_INFO}
+      AUTHENTIK__OPENID_CONFIG: ${AUTHENTIK__OPENID_CONFIG}
       KAFKA__BOOTSTRAP_SERVERS: ${KAFKA__BOOTSTRAP_SERVERS}
     ports:
       - "${TICKET_SERVICE__LISTEN_PORT}:8070"
@@ -45,8 +49,6 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
-      secret-vault:
-        condition: service_healthy
     networks:
       - services-network
 
@@ -54,13 +56,16 @@ services:
     build: 
       context: ../
       dockerfile: ./deployment/flight_service/Dockerfile
-    image: squeakbug73/flight-service:0.6
+    image: squeakbug73/flight-service:0.7
     restart: unless-stopped
     container_name: flight-service
     environment:
       FLIGHT_SERVICE__LISTEN_PORT: ${FLIGHT_SERVICE__LISTEN_PORT}
       FLIGHT_SERVICE__DATABASE_URL: ${FLIGHT_SERVICE__DATABASE_URL}
       IDENTITY_SECRET_KEY: ${IDENTITY_SECRET_KEY}
+      AUTHENTIK__JWKS: ${AUTHENTIK__JWKS}
+      AUTHENTIK__USER_INFO: ${AUTHENTIK__USER_INFO}
+      AUTHENTIK__OPENID_CONFIG: ${AUTHENTIK__OPENID_CONFIG}
       KAFKA__BOOTSTRAP_SERVERS: ${KAFKA__BOOTSTRAP_SERVERS}
     ports:
       - "${FLIGHT_SERVICE__LISTEN_PORT}:8060"
@@ -69,8 +74,6 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
-      secret-vault:
-        condition: service_healthy
     networks:
       - services-network
 
@@ -78,13 +81,16 @@ services:
     build: 
       context: ../
       dockerfile: ./deployment/bonus_service/Dockerfile
-    image: squeakbug73/bonus-service:0.5
+    image: squeakbug73/bonus-service:0.6
     restart: unless-stopped
     container_name: bonus-service
     environment:
       BONUS_SERVICE__LISTEN_PORT: ${BONUS_SERVICE__LISTEN_PORT}
       BONUS_SERVICE__DATABASE_URL: ${BONUS_SERVICE__DATABASE_URL}
       IDENTITY_SECRET_KEY: ${IDENTITY_SECRET_KEY}
+      AUTHENTIK__JWKS: ${AUTHENTIK__JWKS}
+      AUTHENTIK__USER_INFO: ${AUTHENTIK__USER_INFO}
+      AUTHENTIK__OPENID_CONFIG: ${AUTHENTIK__OPENID_CONFIG}
       KAFKA__BOOTSTRAP_SERVERS: ${KAFKA__BOOTSTRAP_SERVERS}
     ports:
       - "${BONUS_SERVICE__LISTEN_PORT}:8050"
@@ -92,8 +98,6 @@ services:
       postgres:
         condition: service_healthy
       kafka:
-        condition: service_healthy
-      secret-vault:
         condition: service_healthy
     networks:
       - services-network
@@ -115,8 +119,6 @@ services:
       postgres:
         condition: service_healthy
       kafka:
-        condition: service_healthy
-      secret-vault:
         condition: service_healthy
     networks:
       - services-network

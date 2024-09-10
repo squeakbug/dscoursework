@@ -5,7 +5,7 @@ services:
     build: 
       context: ../
       dockerfile: ./deployment/gateway_service/Dockerfile
-    image: squeakbug73/gateway-service:0.4
+    image: squeakbug73/gateway-service:0.6
     restart: unless-stopped
     container_name: gateway-service
     environment:
@@ -15,6 +15,9 @@ services:
       FLIGHT_SERVICE_ADDRESS: ${FLIGHT_SERVICE_ADDRESS}
       TICKET_SERVICE_ADDRESS: ${TICKET_SERVICE_ADDRESS}
       IDENTITY_SECRET_KEY: ${IDENTITY_SECRET_KEY}
+      AUTHENTIK__JWKS: ${AUTHENTIK__JWKS}
+      AUTHENTIK__USER_INFO: ${AUTHENTIK__USER_INFO}
+      AUTHENTIK__OPENID_CONFIG: ${AUTHENTIK__OPENID_CONFIG}
       KAFKA__BOOTSTRAP_SERVERS: ${KAFKA__BOOTSTRAP_SERVERS}
     depends_on:
       kafka:
@@ -28,14 +31,19 @@ services:
     build: 
       context: ../
       dockerfile: ./deployment/ticket_service/Dockerfile
-    image: squeakbug73/ticket-service:0.4
+    image: squeakbug73/ticket-service:0.6
     restart: unless-stopped
     container_name: ticket-service
     environment:
       TICKET_SERVICE__LISTEN_PORT: ${TICKET_SERVICE__LISTEN_PORT}
       TICKET_SERVICE__DATABASE_URL: ${TICKET_SERVICE__DATABASE_URL}
       IDENTITY_SECRET_KEY: ${IDENTITY_SECRET_KEY}
+      AUTHENTIK__JWKS: ${AUTHENTIK__JWKS}
+      AUTHENTIK__USER_INFO: ${AUTHENTIK__USER_INFO}
+      AUTHENTIK__OPENID_CONFIG: ${AUTHENTIK__OPENID_CONFIG}
       KAFKA__BOOTSTRAP_SERVERS: ${KAFKA__BOOTSTRAP_SERVERS}
+    ports:
+      - "${TICKET_SERVICE__LISTEN_PORT}:8070"
     depends_on:
       postgres:
         condition: service_healthy
@@ -48,14 +56,19 @@ services:
     build: 
       context: ../
       dockerfile: ./deployment/flight_service/Dockerfile
-    image: squeakbug73/flight-service:0.4
+    image: squeakbug73/flight-service:0.7
     restart: unless-stopped
     container_name: flight-service
     environment:
       FLIGHT_SERVICE__LISTEN_PORT: ${FLIGHT_SERVICE__LISTEN_PORT}
       FLIGHT_SERVICE__DATABASE_URL: ${FLIGHT_SERVICE__DATABASE_URL}
       IDENTITY_SECRET_KEY: ${IDENTITY_SECRET_KEY}
+      AUTHENTIK__JWKS: ${AUTHENTIK__JWKS}
+      AUTHENTIK__USER_INFO: ${AUTHENTIK__USER_INFO}
+      AUTHENTIK__OPENID_CONFIG: ${AUTHENTIK__OPENID_CONFIG}
       KAFKA__BOOTSTRAP_SERVERS: ${KAFKA__BOOTSTRAP_SERVERS}
+    ports:
+      - "${FLIGHT_SERVICE__LISTEN_PORT}:8060"
     depends_on:
       postgres:
         condition: service_healthy
@@ -68,14 +81,19 @@ services:
     build: 
       context: ../
       dockerfile: ./deployment/bonus_service/Dockerfile
-    image: squeakbug73/bonus-service:0.4
+    image: squeakbug73/bonus-service:0.6
     restart: unless-stopped
     container_name: bonus-service
     environment:
       BONUS_SERVICE__LISTEN_PORT: ${BONUS_SERVICE__LISTEN_PORT}
       BONUS_SERVICE__DATABASE_URL: ${BONUS_SERVICE__DATABASE_URL}
       IDENTITY_SECRET_KEY: ${IDENTITY_SECRET_KEY}
+      AUTHENTIK__JWKS: ${AUTHENTIK__JWKS}
+      AUTHENTIK__USER_INFO: ${AUTHENTIK__USER_INFO}
+      AUTHENTIK__OPENID_CONFIG: ${AUTHENTIK__OPENID_CONFIG}
       KAFKA__BOOTSTRAP_SERVERS: ${KAFKA__BOOTSTRAP_SERVERS}
+    ports:
+      - "${BONUS_SERVICE__LISTEN_PORT}:8050"
     depends_on:
       postgres:
         condition: service_healthy
@@ -116,6 +134,8 @@ services:
     volumes:
       - postgres-volume:/var/lib/postgresql/data
       - ./postgres/docker-entrypoint-initdb.d/:/docker-entrypoint-initdb.d/
+    ports:
+      - "5432:5432"
     networks:
       - services-network
     healthcheck:
@@ -129,6 +149,9 @@ services:
   rabbitmq:
     image: ${DOCKER_REGISTRY}/rabbitmq:3.13.2-management
     restart: always
+    ports:
+      - "15672:15672"
+      - "5672:5672"
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBIT_MQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBIT_MQ_DEFAULT_PASS}
@@ -138,6 +161,8 @@ services:
   kafdrop:
     image: ${DOCKER_REGISTRY}/obsidiandynamics/kafdrop
     restart: "no"
+    ports:
+      - "9004:9000"
     environment:
       KAFKA_BROKERCONNECT: "kafka:9093"
       JVM_OPTS: "-Xms32M -Xmx64M"
@@ -156,6 +181,9 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+      - "2182:2182"
     networks:
       - services-network
 
@@ -163,11 +191,15 @@ services:
     image: ${DOCKER_REGISTRY}/confluentinc/cp-kafka:7.4.6
     hostname: kafka
     container_name: kafka
+    restart: always
     healthcheck:
       test: nc -z localhost 9092 || exit -1
       interval: 5s
       timeout: 5s
       retries: 5
+    ports:
+      - "8091:8091"
+      - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_LISTENERS: INSIDE://:9093,OUTSIDE://:9092
@@ -187,6 +219,9 @@ services:
 
   minio:
     image: ${DOCKER_REGISTRY}/minio/minio
+    ports:
+      - "9002:9000"
+      - "9003:9001"
     environment:
       - MINIO_ROOT_USER=minio
       - MINIO_ROOT_PASSWORD=minio123
@@ -246,6 +281,7 @@ services:
       AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER}
       AUTHENTIK_POSTGRESQL__NAME: ${POSTGRES_DB}
       AUTHENTIK_POSTGRESQL__PASSWORD: ${POSTGRES_PASSWORD}
+      AUTHENTIK_SECRET_KEY: ${IDENTITY_SECRET_KEY}
     user: root
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -261,12 +297,37 @@ services:
   whoami:
     image: "traefik/whoami"
     container_name: "simple-service"
+    restart: unless-stopped
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
       - "traefik.http.routers.whoami.entrypoints=web"
     networks:
       - services-network
+
+  secret-vault:
+    image: vault:1.13.3
+    container_name: secret-vault
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://secret-vault:8200/v1/sys/health?standbyok=true" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    ports:
+      - "8200:8200"
+      - "8201:8201"
+      - "8125:8125"
+    volumes:
+      - hashivault-volume:/vault/file:rw
+      - ./hashivault:/vault/config:rw
+    cap_add:
+      - IPC_LOCK
+    entrypoint: vault server -config=/vault/config/vault.json
+    networks:
+      - services-network
+
 
 networks:
   services-network:
@@ -277,4 +338,4 @@ volumes:
   minio-volume: {}
   redis-volume: {}
   kafka-volume: {}
-
+  hashivault-volume: {}
