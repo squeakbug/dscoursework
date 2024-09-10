@@ -1,6 +1,6 @@
 service:
   image:
     name: squeakbug73/gateway-service
-    version: "0.4"
+    version: "0.5"
   externalPort: "8080"
   internalPort: "8080"

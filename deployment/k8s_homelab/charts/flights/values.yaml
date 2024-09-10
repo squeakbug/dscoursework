@@ -1,6 +1,6 @@
 service:
   image:
     name: squeakbug73/flight-service
-    version: "0.5"
+    version: "0.6"
   externalPort: "8060"
   internalPort: "8060"

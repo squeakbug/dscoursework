@@ -5,7 +5,7 @@ services:
     build: 
       context: ../
       dockerfile: ./deployment/gateway_service/Dockerfile
-    image: squeakbug73/gateway-service:0.4
+    image: squeakbug73/gateway-service:0.5
     restart: unless-stopped
     container_name: gateway-service
     environment:
@@ -30,7 +30,7 @@ services:
     build: 
       context: ../
       dockerfile: ./deployment/ticket_service/Dockerfile
-    image: squeakbug73/ticket-service:0.4
+    image: squeakbug73/ticket-service:0.5
     restart: unless-stopped
     container_name: ticket-service
     environment:
@@ -54,7 +54,7 @@ services:
     build: 
       context: ../
       dockerfile: ./deployment/flight_service/Dockerfile
-    image: squeakbug73/flight-service:0.5
+    image: squeakbug73/flight-service:0.6
     restart: unless-stopped
     container_name: flight-service
     environment:
@@ -78,7 +78,7 @@ services:
     build: 
       context: ../
       dockerfile: ./deployment/bonus_service/Dockerfile
-    image: squeakbug73/bonus-service:0.4
+    image: squeakbug73/bonus-service:0.5
     restart: unless-stopped
     container_name: bonus-service
     environment:

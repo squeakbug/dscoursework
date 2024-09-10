@@ -40,7 +40,10 @@ fn service_config(cfg: &mut web::ServiceConfig) {
         .service(ticket_controller::create)
         .service(ticket_controller::get_id)
         .service(ticket_controller::delete)
-        .service(ticket_controller::patch_id);
+        .service(ticket_controller::patch_id)
+        .service(web::resource("/ping").to(|| async move {
+            HttpResponse::Ok().body("Pong")
+        }));
 }
 
 fn start_db_executor(cfg: &config::Config) -> Result<Addr<DatabaseExecutor>, ConfigError> {

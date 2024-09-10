@@ -27,6 +27,13 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.service.image.name }}:{{ .Values.service.image.version }}"
           imagePullPolicy: IfNotPresent
+          livenessProbe:
+            httpGet:
+              path: /api/v1/ping
+              port: {{ .Values.service.internalPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 3
           ports:
           - containerPort: {{ .Values.service.internalPort }}
           env:

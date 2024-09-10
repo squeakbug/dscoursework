@@ -44,7 +44,10 @@ fn service_config(cfg: &mut web::ServiceConfig) {
     cfg.service(privilege_controller::list_privileges)
         .service(privilege_controller::create_bonus)
         .service(privilege_controller::delete_bonus)
-        .service(privilege_controller::list_privilege_history);
+        .service(privilege_controller::list_privilege_history)
+        .service(web::resource("/ping").to(|| async move {
+            HttpResponse::Ok().body("Pong")
+        }));
 }
 
 fn start_db_executor(cfg: &config::Config) -> Result<Addr<DatabaseExecutor>, ConfigError> {

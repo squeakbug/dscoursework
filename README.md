@@ -24,6 +24,28 @@ cd deployment
 export $(cat .env.template | xargs)
 ```
 
+В кластере определяется hpa ресурс, поэтому должны быть выполнены [соответствующие требования](https://github.com/kubernetes-sigs/metrics-server/blob/master/README.md#requirements).
+Если используется minikube с уже установленным metrics-server, то следует [изменить спеку контейнера](https://github.com/kubernetes/minikube/issues/4456#issuecomment-569588906):
+
+```sh
+kubectl edit deployments.apps metrics-server
+
+# Найти:
+spec:
+containers:
+- args:
+- --cert-dir=/tmp
+- --secure-port=10250
+- --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+- --kubelet-use-node-status-port
+- --metric-resolution=15s
+
+# Добавить/заменить на:
+- --secure-port=4443
+- --kubelet-insecure-tls
+- --kubelet-preferred-address-types=InternalIP
+```
+
 ## Сборка
 
 Тестовая сборка:

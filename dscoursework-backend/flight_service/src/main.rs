@@ -36,7 +36,11 @@ pub mod schema;
 pub mod state;
 
 fn service_config(cfg: &mut web::ServiceConfig) {
-    cfg.service(flight_controller::list).service(flight_controller::get_id);
+    cfg.service(flight_controller::list)
+        .service(flight_controller::get_id)
+        .service(web::resource("/ping").to(|| async move {
+            HttpResponse::Ok().body("Pong")
+        }));
 }
 
 fn start_db_executor(cfg: &config::Config) -> Result<Addr<DatabaseExecutor>, ConfigError> {

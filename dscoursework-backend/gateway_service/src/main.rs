@@ -46,7 +46,10 @@ fn service_config(cfg: &mut web::ServiceConfig) {
         .service(ticket_get)
         .service(ticket_delete)
         .service(get_user_bonuses)
-        .service(bonuses_status);
+        .service(bonuses_status)
+        .service(web::resource("/ping").to(|| async move {
+            HttpResponse::Ok().body("Pong")
+        }));
 }
 
 fn circuit_breaker() -> StateMachine<ConsecutiveFailures<Exponential>, ()> {
