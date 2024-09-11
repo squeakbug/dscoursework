@@ -5,7 +5,7 @@
         mat-align-tabs="start" 
         dynamicHeight>
 
-        @if (isAuth) {
+        @if (isAuthenticated$) {
             <mat-tab label="Список билетов" />
             <mat-tab label="Профиль" />
         }
@@ -13,7 +13,7 @@
 
     <div class="spacer"></div>
 
-    @if (isAuth) {
+    @if (isAuthenticated$) {
         <button (click)="logout()" mat-stroked-button color="primary">Выйти</button>
     } @else {
         <button (click)="login()" mat-stroked-button color="primary">Войти</button>

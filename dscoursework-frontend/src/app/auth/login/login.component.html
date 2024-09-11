@@ -1,6 +1,6 @@
 <div class="wrap-login">
     <div class="container">
-        <form class="" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <form class="" [formGroup]="loginForm">
             <mat-card class="login-box">
                 <mat-card-header>
                     <img mat-card-avatar [src]="logoUrl" alt="Logo">
@@ -21,9 +21,15 @@
                     </mat-form-field>
                 </mat-card-content>
 
-                <mat-card-actions>
-                    <button mat-raised-button color="primary">Login</button>
-                </mat-card-actions>
+                <div class="bottom-btns">
+                    <mat-card-actions>
+                        <button mat-raised-button color="primary" (click)="onLoginSSO()">SSO</button>
+                    </mat-card-actions>
+
+                    <mat-card-actions>
+                        <button mat-raised-button color="primary" (click)="onLogin()">Логин</button>
+                    </mat-card-actions>
+                </div>
             </mat-card>
         </form>
     </div>

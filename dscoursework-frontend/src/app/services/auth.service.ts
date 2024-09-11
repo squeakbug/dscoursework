@@ -1,48 +1,77 @@
-import { Inject, Injectable, InjectionToken } from '@angular/core';
-import { BrowserStorageService } from './storage.service';
+import { inject, Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 
-import { OAuthService } from 'angular-oauth2-oidc';
-import { filter } from 'rxjs/operators';
+import { LoginResponse, OidcSecurityService } from 'angular-auth-oidc-client';
+import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 
-import { authCodeFlowConfig } from './login.config';
-
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class AuthService {
 
-  constructor(
-    private oauthService: OAuthService,
-  ) {
-    this.oauthService.configure(authCodeFlowConfig);
-    this.oauthService.loadDiscoveryDocumentAndLogin();
-    this.oauthService.events
-      .pipe(filter((e) => e.type === 'token_received'))
-      .subscribe((_subscriber) => this.oauthService.loadUserProfile());
+  configuration$ = this.oauthService.getConfiguration();
+  userData$ = this.oauthService.userData$;
+
+  isAuthenticated$ = this.oauthService.isAuthenticated$;
+
+  constructor(private readonly oauthService: OidcSecurityService) {
+    this.oauthService
+      .checkAuth()
+      .subscribe(({ isAuthenticated, accessToken }) => {
+        console.log('app authenticated', isAuthenticated);
+    });
   }
 
-  get userName(): string | null {
-    const claims = this.oauthService.getIdentityClaims();
-    if (!claims) return null;
-    return claims['given_name'];
+  public loginSSO() {
+    this.oauthService.authorize();
+  }
+  public login() {
+    this.oauthService.authorize();
+  }
+  public logout() { 
+    this.oauthService
+      .logoff()
+      .subscribe((result) => console.log(result));
+  }
+  public logoffAndRevokeTokens(): void {
+    this.oauthService
+      .logoffAndRevokeTokens()
+      .subscribe((result) => console.log(result));
   }
 
-  get idToken(): string {
-    return this.oauthService.getIdToken();
+  public revokeRefreshToken(): void {
+    this.oauthService
+      .revokeRefreshToken()
+      .subscribe((result) => console.log(result));
   }
 
-  get accessToken(): string {
-    return this.oauthService.getAccessToken();
+  public revokeAccessToken(): void {
+    this.oauthService
+      .revokeAccessToken()
+      .subscribe((result) => console.log(result));
   }
 
-  login() {
-    this.oauthService.initLoginFlow();
+  public get accessToken() { 
+    return this.oauthService.getAccessToken(); 
+  }
+  public get refreshToken() { 
+    return this.oauthService.getRefreshToken(); 
+  }
+  public get idToken() { 
+    return this.oauthService.getIdToken(); 
   }
 
-  logout() {
-    this.oauthService.logOut();
+  public refresh(): void {
+    this.oauthService
+      .forceRefreshSession()
+      .subscribe((result) => console.log(result));
   }
 
-  refresh() {
-    this.oauthService.refreshToken();
+  public get nickname(): Observable<string> {
+    return this.userData$.pipe(map((userData) => 
+      userData.userData["preferred_nickname"]
+    ))
   }
 
 }

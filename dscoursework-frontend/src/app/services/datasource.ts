@@ -15,25 +15,21 @@ import { samplePaginationResponse } from "src/assets/sample.PaginationResponse";
 import { PrivilegeShortInfo } from "../models/PrivilegeShortInfo";
 
 const SCHEMA = "http";
-const PORT = 3500;
+const PORT = 30000;
 
 @Injectable()
 export class DataSource {
     baseUrl: string;
     auth_token?: string;
 
-    constructor(private http: HttpClient, ps: PlatformService) {
-        this.baseUrl = ps.isServer
-            ? `${SCHEMA}://localhost:${PORT}`
-            : "/api/v1";
+    constructor(private http: HttpClient) {
+        this.baseUrl = environment.gatewayApiUrl
     }
 
     getFlights(page: number, size: number): Observable<PaginationResponse> {
-        if (environment.useTestData) {
-            return from(samplePaginationResponse);
-        } else {
-            return this.http.get<PaginationResponse>(`${this.baseUrl}/flights/?page=${page}&size=${size}`)
-        }
+        return this.http.get<PaginationResponse>(
+            `${this.baseUrl}/flights/?page=${page}&size=${size}`,
+        )
     }
 
     listTickets(): Observable<TicketResponse[]> {

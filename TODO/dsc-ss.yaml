@@ -1,0 +1,14 @@
+apiVersion: external-secrets.io/v1alpha1
+kind: SecretStore
+metadata:
+  name: {{ .Chart.Name }}
+  namespace: {{ .Values.global.namespace }}
+spec:
+  provider: 
+    hashivault:
+      path: secret/myapp
+    data:
+      - key: username
+        name: USERNAME
+      - key: password
+        name: PASSWORD

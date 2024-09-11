@@ -11,6 +11,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { FlightRepository } from 'src/app/services/flight.repository';
 import { FlightsComponent } from "../../flight/flights/flights.component";
 import { FlightResponse } from 'src/app/models/FlightResponse';
+import { ToolbarComponent } from 'src/app/shared/toolbar/toolbar.component';
 
 @Component({
   selector: 'app-index',
@@ -23,6 +24,7 @@ import { FlightResponse } from 'src/app/models/FlightResponse';
     FormsModule,
     ReactiveFormsModule,
     FlightsComponent,
+    ToolbarComponent,
 ],
   templateUrl: './index.component.html',
   styleUrl: './index.component.scss',

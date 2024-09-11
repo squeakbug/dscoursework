@@ -6,16 +6,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
-import { OAuthService } from 'angular-oauth2-oidc';
-import { filter } from 'rxjs/operators';
-
-import { authCodeFlowConfig } from './login.config';
 import { ImageLoaderService } from '../../services/image-loader.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   standalone: true,
   selector: 'app-login',
-  imports: [NgIf, MatButtonModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule],
+  imports: [
+    NgIf, MatButtonModule, 
+    ReactiveFormsModule, MatCardModule, 
+    MatFormFieldModule, MatInputModule
+  ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
@@ -27,14 +28,8 @@ export class LoginComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder, 
     private imageLoader: ImageLoaderService,
-    private oauthService: OAuthService,
+    private authService: AuthService,
   ) {
-    this.oauthService.configure(authCodeFlowConfig);
-    this.oauthService.loadDiscoveryDocumentAndLogin();
-    this.oauthService.events
-      .pipe(filter((e) => e.type === 'token_received'))
-      .subscribe((_subscriber) => this.oauthService.loadUserProfile());
-
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
@@ -52,30 +47,12 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  onSubmit(): void {
-    if (this.loginForm.valid) {
-      console.log('Login form submitted');
-    } else {
-      return;
-    }
+  onLoginSSO() {
+    this.authService.loginSSO();
   }
 
-  get userName(): string | null {
-    const claims = this.oauthService.getIdentityClaims();
-    if (!claims) return null;
-    return claims['given_name'];
-  }
-
-  get idToken(): string {
-    return this.oauthService.getIdToken();
-  }
-
-  get accessToken(): string {
-    return this.oauthService.getAccessToken();
-  }
-
-  refresh() {
-    this.oauthService.refreshToken();
+  onLogin() {
+    this.authService.login();
   }
 
 }

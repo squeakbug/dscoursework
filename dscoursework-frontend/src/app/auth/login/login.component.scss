@@ -131,3 +131,10 @@ mat-card-actions {
     display: flex;
     justify-content: flex-end;
 }
+
+.bottom-btns {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 10px;
+}

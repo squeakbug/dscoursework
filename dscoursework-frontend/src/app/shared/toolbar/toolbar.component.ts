@@ -5,6 +5,8 @@ import { NgFor, NgIf } from '@angular/common';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTabsModule, MatTabChangeEvent } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
+import { AuthService } from 'src/app/services/auth.service';
+import { map, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-toolbar',
@@ -19,18 +21,20 @@ import { MatButtonModule } from '@angular/material/button';
   styleUrl: './toolbar.component.scss'
 })
 export class ToolbarComponent {
-  isAuth: boolean = false;
+  isAuthenticated$ = this.authService.isAuthenticated$.pipe(map(isAuth => {
+    return isAuth.isAuthenticated;
+  }));
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private authService: AuthService) {
 
   }
 
   login() {
-    this.isAuth = true;
+    this.router.navigate(['/login']);
   }
 
   logout() {
-    this.isAuth = false;
+    this.authService.logout();
   }
 
   selectedTabChangeHandle(e: MatTabChangeEvent) {

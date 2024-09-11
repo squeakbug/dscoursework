@@ -1,6 +1,5 @@
 export const environment = {
     production: false,
     useTestData: false,
-    gatewayApiUrl: 'http://dev.dscoursework:8080/api/v1',
+    gatewayApiUrl: 'http://localhost/api/v1',
 };
-

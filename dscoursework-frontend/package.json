@@ -53,6 +53,7 @@
     "@types/node": "18.16.9",
     "@typescript-eslint/eslint-plugin": "^7.3.0",
     "@typescript-eslint/parser": "^7.3.0",
+    "angular-auth-oidc-client": "^18.0.1",
     "bootstrap": "^5.3.3",
     "eslint": "~8.57.0",
     "eslint-config-prettier": "^9.0.0",
